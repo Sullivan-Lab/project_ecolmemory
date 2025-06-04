@@ -1,0 +1,1870 @@
+---
+title: "L2_dataAnalysis_CDCRdata_Nutrient_AllDist_Figures_CoarseEnv"
+author: "laís petri"
+date: "2025-03-07"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+rm(list = ls())
+started <- Sys.time()
+```
+
+```{r package and directory, echo=FALSE}
+## data wrangling + plots
+library(tidyverse) 
+library(scales)
+library(patchwork)
+## color blind discrete colors
+library(pals) 
+## arrange plots
+library(cowplot)
+```
+
+Folders
+```{r}
+workingdir <- getwd()
+datain <- file.path(workingdir, "parameters/CoarseEnv")
+datain_litter <- file.path(workingdir, "parameters/CoarseEnv_FieldsAB")
+graph.wd <- file.path(workingdir, "figures/final")
+```
+
+Importing datasets: summary stats
+```{r}
+# live biomass
+## All years
+# Intact model results
+parameters0_NoDist <- read_csv(file.path(datain,"NoDist_CoarseEnv_ParametersValues.csv")) %>% 
+    mutate(exp = 1,
+           dur = 1) # 1=All years, 2 = Minus5y
+glimpse(parameters0_NoDist)
+
+# Disturbed model results
+parameters0_Dist <- read_csv(file.path(datain,"Dist_CoarseEnv_ParametersValues.csv")) %>% 
+    mutate(exp = 2,
+           dur = 1)
+glimpse(parameters0_Dist)
+
+## Minus5y
+# Intact model results
+parameters0_NoDist2 <- read_csv(file.path(datain,"NoDistMinus5y_CoarseEnv_ParametersValues.csv")) %>% 
+    mutate(exp = 1,
+           dur = 2)
+glimpse(parameters0_NoDist2)
+
+# Disturbed model results
+parameters0_Dist2 <- read_csv(file.path(datain,"DistMinus5y_CoarseEnv_ParametersValues.csv")) %>% 
+    mutate(exp = 2,
+           dur = 2)
+glimpse(parameters0_Dist2)
+
+# dead biomass
+## All years
+# Intact model results
+lparameters0_NoDist <- read_csv(file.path(datain_litter,"NoDist_Litter_FieldsAB_CoarseEnv_ParametersValues.csv")) %>% 
+    mutate(exp = 1,
+           dur = 1) # 1=All years, 2 = Minus5y
+glimpse(lparameters0_NoDist)
+
+# Disturbed model results
+lparameters0_Dist <- read_csv(file.path(datain_litter,"Dist_Litter_FieldsAB_CoarseEnv_ParametersValues.csv")) %>% 
+    mutate(exp = 2,
+           dur = 1)
+glimpse(lparameters0_Dist)
+
+## Minus5y
+# Intact model results
+lparameters0_NoDist2 <- read_csv(file.path(datain_litter,"NoDist_Litter_FieldsAB_Minus5y_CoarseEnv_ParametersValues.csv")) %>% 
+    mutate(exp = 1,
+           dur = 2)
+glimpse(lparameters0_NoDist2)
+
+# Disturbed model results
+lparameters0_Dist2 <- read_csv(file.path(datain_litter,"Dist_Litter_FieldsAB_Minus5y_CoarseEnv_ParametersValues.csv")) %>% 
+    mutate(exp = 2,
+           dur = 2)
+glimpse(lparameters0_Dist2)
+```
+
+Importing datasets: predictions of effect vs ntrt quantity
+```{r}
+# live biomass
+## All years
+# Preciptation
+precip.pred <- read_csv(file.path(workingdir,"parameters/CoarseEnv_Slopes/abg/precipData_ParametersValues.csv")) %>% 
+  mutate(alpha=2,
+         dur = 1)
+glimpse(precip.pred)
+
+# temperature
+temp.pred <- read_csv(file.path(workingdir,"parameters/CoarseEnv_Slopes/abg/tempData_ParametersValues.csv")) %>% 
+  mutate(alpha=3,
+         dur = 1)
+glimpse(temp.pred)
+
+## Minus5y
+# Preciptation
+precip.pred2 <- read_csv(file.path(workingdir,"parameters/CoarseEnv_Slopes/abgMinus5y/precipData_ParametersValues.csv")) %>% 
+  mutate(alpha=2,
+         dur = 2)
+glimpse(precip.pred2)
+
+# temperature
+temp.pred2 <- read_csv(file.path(workingdir,"parameters/CoarseEnv_Slopes/abgMinus5y/tempData_ParametersValues.csv")) %>% 
+  mutate(alpha=3,
+         dur = 2)
+glimpse(temp.pred2)
+
+# dead biomass
+## All years
+# Precipitation
+lprecip.pred <- read_csv(file.path(workingdir,"parameters/CoarseEnv_FieldsAB_Slopes/litter/precipData_ParametersValues.csv")) %>% 
+  mutate(alpha=2,
+         dur = 1)
+glimpse(lprecip.pred)
+
+# temperature
+ltemp.pred <- read_csv(file.path(workingdir,"parameters/CoarseEnv_FieldsAB_Slopes/litter/tempData_ParametersValues.csv")) %>% 
+  mutate(alpha=3,
+         dur = 1)
+glimpse(ltemp.pred)
+
+## Minus5y
+# Precipitation
+lprecip.pred2 <- read_csv(file.path(workingdir,"parameters/CoarseEnv_FieldsAB_Slopes/litterMinus5y/precipData_ParametersValues.csv")) %>% 
+  mutate(alpha=2,
+         dur = 2)
+glimpse(lprecip.pred2)
+
+# temperature
+ltemp.pred2 <- read_csv(file.path(workingdir,"parameters/CoarseEnv_FieldsAB_Slopes/litterMinus5y/tempData_ParametersValues.csv")) %>% 
+  mutate(alpha=3,
+         dur = 2)
+glimpse(ltemp.pred2)
+```
+
+Importing datasets: climate means
+```{r}
+# live biomass
+## All years
+clim.means_NoDist <- read_csv(file.path(workingdir,"data/L1/DataModel_CoarseEnv/climateMeans/clim.means_NoDist_CoarseEnv.csv")) %>% 
+    summarise(Precip_mm = sum(Precip_mm),
+              MaxTemp_C = mean(MaxTemp_C)) %>%
+  mutate(exp = 1,
+         dur = 1)
+
+clim.means_Dist <- read_csv(file.path(workingdir,"data/L1/DataModel_CoarseEnv/climateMeans/clim.means_Dist_CoarseEnv.csv")) %>% 
+    summarise(Precip_mm = sum(Precip_mm),
+              MaxTemp_C = mean(MaxTemp_C)) %>% 
+  mutate(exp = 2,
+         dur = 1)
+
+## Minus5y
+clim.means_NoDist2 <- read_csv(file.path(workingdir,"data/L1/DataModel_CoarseEnv/climateMeans/clim.means_NoDistMinus5y_CoarseEnv.csv")) %>% 
+    summarise(Precip_mm = sum(Precip_mm),
+              MaxTemp_C = mean(MaxTemp_C)) %>% 
+  mutate(exp = 1,
+         dur = 2)
+
+clim.means_Dist2 <- read_csv(file.path(workingdir,"data/L1/DataModel_CoarseEnv/climateMeans/clim.means_DistMinus5y_CoarseEnv.csv")) %>% 
+    summarise(Precip_mm = sum(Precip_mm),
+              MaxTemp_C = mean(MaxTemp_C)) %>% 
+  mutate(exp = 2,
+         dur = 2)
+
+clim.means <- clim.means_NoDist %>% bind_rows(clim.means_Dist) %>% bind_rows(clim.means_NoDist2) %>% bind_rows(clim.means_Dist2)
+
+# dead biomass
+
+## All years
+clim.means_NoDist <- read_csv(file.path(workingdir,"data/L1/DataModel_CoarseEnv_FieldsAB/climateMeans/clim.means_NoDist_Litter_FieldsAB_CoarseEnv.csv")) %>% 
+    summarise(Precip_mm = sum(Precip_mm),
+              MaxTemp_C = mean(MaxTemp_C)) %>%
+  mutate(exp = 1,
+         dur = 1)
+
+clim.means_Dist <- read_csv(file.path(workingdir,"data/L1/DataModel_CoarseEnv_FieldsAB/climateMeans/clim.means_Dist_Litter_FieldsAB_CoarseEnv.csv")) %>% 
+    summarise(Precip_mm = sum(Precip_mm),
+              MaxTemp_C = mean(MaxTemp_C)) %>% 
+  mutate(exp = 2,
+         dur = 1)
+
+## Minus5y
+clim.means_NoDist2 <- read_csv(file.path(workingdir,"data/L1/DataModel_CoarseEnv_FieldsAB/climateMeans/clim.means_NoDist_Litter_FieldsAB_Minus5y_CoarseEnv.csv")) %>% 
+    summarise(Precip_mm = sum(Precip_mm),
+              MaxTemp_C = mean(MaxTemp_C)) %>% 
+  mutate(exp = 1,
+         dur = 2)
+
+clim.means_Dist2 <- read_csv(file.path(workingdir,"data/L1/DataModel_CoarseEnv_FieldsAB/climateMeans/clim.means_Dist_Litter_FieldsAB_Minus5y_CoarseEnv.csv")) %>% 
+    summarise(Precip_mm = sum(Precip_mm),
+              MaxTemp_C = mean(MaxTemp_C)) %>% 
+  mutate(exp = 2,
+         dur = 2)
+
+lclim.means <- clim.means_NoDist %>% bind_rows(clim.means_Dist) %>% bind_rows(clim.means_NoDist2) %>% bind_rows(clim.means_Dist2)
+```
+
+Importing PNG figures
+```{r}
+icon_rain <- file.path(datain,"PNG/weather-rain.png")
+icon_temp <- file.path(datain,"PNG/temperature-moderate.png")
+```
+
+# Results (Figures)
+
+Code to plot the output of both models in same plots
+
+General objects (graphs)
+```{r}
+#colors
+colntrt<-pals::brewer.dark2(9)
+colglobal<-as.character(pals::alphabet2(3))
+
+colntrtseq<-c("#FEDBC7", "#FBC6AD", "#F8B193", "#F29B7B", "#E68166", "#DA6752", "#CE4C43", "#C03036", "#B31529")
+
+#trick to plot 9 before all other treatments
+order_levels <- c(9, 1, 2, 3, 4, 5, 6, 7, 8)
+ntrtLong_levels <- c("0 + None", "0 + All", "1 + All", "2 + All", "3.4 + All", "5.4 + All", "9.5 + All", "17 + All", "27.2 + All")
+ntrtLong_levels2 <- c("0\nNone", "0\nAll", "1\nAll", "2\nAll", "3.4\nAll", "5.4\nAll", "9.5\nAll", "17\nAll", "27.2\nAll")
+
+#variable names
+summaryVar <- data.frame(Var_name = c("Precipitation","Maximum_Temperature","Precipitation","Maximum_Temperature"),
+                         Var_name2 = c("P","T","P","T"),
+                         Var_name3 = c("Precipitation","Maximum Temperature","Precipitation","Maximum Temperature"),
+                         biomass = c(1,1,2,2),
+                         Var_name5 = c("LiveBiomass","LiveBiomass","DeadBiomass","DeadBiomass"),
+                         variable = c(1,2,1,2))
+
+#theme facet
+theme_facet <- theme_classic() + 
+    theme(legend.position = "none",
+          text = element_text(family = "sans"),
+          strip.text.x = element_text(face = "bold", size = 11),
+          axis.text.y = element_text(size = 10),
+          axis.text.x = element_text(size = 7),
+          axis.title.y = element_text(size = 10, face = "bold"),
+          strip.text.y = element_text(size=9),
+          axis.line = element_blank(),
+          strip.background = element_rect(linewidth=0.5),
+          plot.margin = margin(t = 5, r = 5, b = 20, l = 5))
+
+theme_facet2 <- theme_classic() + 
+    theme(legend.position = "none",
+          text = element_text(family = "sans"),
+          strip.text.x = element_text(face = "bold", size = 11),
+          axis.text.y = element_text(size = 10),
+          axis.text.x = element_text(size = 7),
+          axis.title.x = element_text(size = 14, face = "bold", margin = margin(t=20)),
+          strip.text.y = element_text(size=9),
+          axis.line = element_blank(),
+          strip.background = element_rect(linewidth=0.5),
+          plot.margin = margin(t = 5, r = 5, b = 5, l = 5))
+
+theme_regular <- theme_classic() + 
+    theme(legend.position = "none",
+          text = element_text(family = "sans"),
+          strip.text.x = element_text(face = "bold", size = 11),
+          axis.text.y = element_text(size = 10),
+          axis.text.x = element_text(size = 7),
+          axis.title.x = element_blank(),
+          axis.title.y = element_text(size = 10, face = "bold"),
+          strip.text.y = element_text(size=9),
+          axis.line = element_blank(),
+          strip.background = element_rect(linewidth=0.5),
+          plot.margin = margin(t = 5, r = 75, b = 5, l = 5))
+
+# resolution_export
+res_export <- 300
+```
+
+Merging model results
+```{r}
+parameters_All <- rbind(parameters0_NoDist,parameters0_Dist,parameters0_NoDist2,parameters0_Dist2) %>% mutate(biomass=1)
+parameters_All_litter <- rbind(lparameters0_NoDist,lparameters0_Dist,lparameters0_NoDist2,lparameters0_Dist2) %>% mutate(biomass=2)
+```
+
+# Supplement
+- [SI] Monthly weights
+Creating datasets
+```{r}
+# live biomass
+#dataframe
+WEIGHTMomodelpar <- parameters_All %>% 
+  filter(grepl("^weightOrdered",parameter)) %>% 
+  mutate(ntrt = factor(rep(1:9,times=288, each=1), levels = order_levels),
+         ntrtLong = factor(rep(c("0 + All", "1 + All", "2 + All", "3.4 + All", "5.4 + All", "9.5 + All", "17 + All", "27.2 + All", "0 + None"),times=288, each=1), levels = ntrtLong_levels),
+         month = rep(1:36,times=8, each=9),
+         variable = rep(1:2,times=4, each=324),
+         ntrt=factor(ntrt, levels = order_levels)) 
+
+WEIGHTMomodelpar1 <- WEIGHTMomodelpar %>% 
+  filter(month %in% seq(2,36, by=3))
+
+# dead biomass
+#dataframe
+lWEIGHTMomodelpar <- parameters_All_litter %>% 
+  filter(grepl("^weightOrdered",parameter)) %>% 
+  mutate(ntrt = factor(rep(1:9,times=288, each=1), levels = order_levels),
+         ntrtLong = factor(rep(c("0 + All", "1 + All", "2 + All", "3.4 + All", "5.4 + All", "9.5 + All", "17 + All", "27.2 + All", "0 + None"),times=288, each=1), levels = ntrtLong_levels),
+         month = rep(1:36,times=8, each=9),
+         variable = rep(1:2,times=4, each=324),
+         ntrt=factor(ntrt, levels = order_levels)) 
+
+lWEIGHTMomodelpar1 <- lWEIGHTMomodelpar %>% 
+  filter(month %in% seq(2,36, by=3))
+
+# merging live and dead biomass
+WEIGHTMomodelpar1 <- WEIGHTMomodelpar1 %>% 
+  bind_rows(lWEIGHTMomodelpar1)
+```
+
+Merge plots [just merge the graphs above if I can't get the bottom ones working]
+```{r}
+# left_column <- plot_grid(final_a, final_b, ncol = 2, rel_widths = c(1, 1.18))
+# left_column
+# ggsave(file.path(graph.wd,"FigSZ.png"), plot = last_plot(), width=15, height=7, dpi = res_export, units="in")
+```
+
+- [SI] Monthly weights - another way
+Creating dataset
+```{r}
+
+ntrt_dur <- tibble("dur" = rep(1:2, each=9),
+                   "ntrt" = as.factor(rep(1:9, each=1, times=2)),
+                   "ntrt_dur" = seq(1:18))
+
+colntrt_faded <-  c(colntrt, "#80e9ca","#f4b57a","#c1adbd","#db9ac8","#cfab9f","#e2f07b","#fad36d","#e4c790","#b4b4b4")
+
+WEIGHTMomodelpar2<- WEIGHTMomodelpar1 %>% 
+  mutate(year = factor(ifelse(month<12, "y0", ifelse(month>12 & month<24,"y-1","y-2")), levels = c("y0","y-1","y-2")),
+         # cat2 = ifelse(exp==1&dur==1, 1, ifelse(exp==2&dur==1, 3, ifelse(exp==1&dur==2, 2,4))),
+         cat = ifelse(exp==1&dur==1, 1, ifelse(exp==2&dur==1, 2, ifelse(exp==1&dur==2, 3,4))),
+         month_generic = ifelse(month %in% c(2,14,26),1, ifelse(month %in% c(5,17,29),2,
+                                                                ifelse(month %in% c(8,20,32), 3, 4)))) %>% 
+  left_join(ntrt_dur)
+
+# define how much to dodge
+dodge_width <- 0.8
+
+# define position of some features within the graph
+xy_values_icon <- list(
+  Var1 = list("x_icon" = -0.475, "y_icon" =  0.474, "icon" = icon_rain, "ylim" = 0.17, "icon_scale" = 0.03), 
+  Var2 = list("x_icon" = -0.475, "y_icon" =  0.474, "icon" = icon_temp, "ylim" = 0.19, "icon_scale" = 0.04),
+  Var3 = list("x_icon" = -0.475, "y_icon" =  0.474, "icon" = icon_rain, "ylim" = 0.23, "icon_scale" = 0.03), 
+  Var4 = list("x_icon" = -0.475, "y_icon" =  0.474, "icon" = icon_temp, "ylim" = 0.21, "icon_scale" = 0.04)
+)
+
+temp_df <- data.frame(
+  cat = "4",
+  x = c(seq(0.74, 9, by = 1), seq(1, 9, by = 1), seq(1.26, 10, by = 1)),
+  y = -0.03,  # offset y1 lower
+  label = rep(c("y0", "y-1", "y-2"), each = 9)
+)
+
+```
+
+Plots
+```{r}
+#ribbons linking monthly error bars (Months and Years)
+for (Var in 1:nrow(summaryVar)) { # as only 2 graphs are going to be generated here
+
+  current_xy_values <- xy_values_icon[[Var]]
+
+a <-
+  WEIGHTMomodelpar2 %>% 
+  filter(variable==summaryVar[Var,6],
+         biomass== summaryVar[Var,4]) %>% 
+  ggplot(aes(x=ntrtLong,y=`statistics.Mean`,
+             color=as.factor(ntrt_dur),
+             # color=as.factor(cat),
+             group=month
+             ))+
+  # geom_hline(yintercept = 0, linetype = "solid", color = "gray20")+
+  # geom_vline(xintercept = seq(0.865,9, by = 1), color = "gray", linetype = "dashed") +
+  # geom_vline(xintercept = seq(1.13,10, by = 1), color = "gray", linetype = "dashed") +
+    # geom_vline(xintercept = seq(1.5, 9, by = 1), color = "gray50") +
+  geom_errorbar(aes(ymin=`quantiles.2.5.`, ymax=`quantiles.97.5.`), 
+                show.legend = FALSE,
+                width=0.2,
+                linewidth=0.5, 
+                alpha=0.5,
+                position=position_dodge(width=dodge_width))+
+  geom_point(aes(shape=as.factor(month_generic),
+                 fill=as.factor(cat),
+                 size = as.factor(month_generic)),
+             position=position_dodge(width=dodge_width)
+             )+
+    scale_size_manual(values = c("1" = 2.5, "2" = 2.5, "3" = 2.5, "4" = 3.5),
+                     labels = c("D-O fall", "S-J late GS", "J-A early GS", "M-J winter"),
+                     name = "Seasons")+
+    scale_color_manual(values = colntrt_faded,
+                     labels = c("0 + None","0 + All","1 + All","2 + All",
+                                "3.4 + All","5.4 + All","9.5 + All","17 + All","27.2 + All",
+                                "","","","","","","","",""),
+                     name = "Nutrient levels")+
+    # scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
+  scale_fill_manual(values = c("1" = 1, "2" = 2),  # use only the levels you want
+  labels = c("1" = "All years", "2" = "Without transient"),
+                    name = "Community type"
+                    )+
+  scale_shape_manual(values = c(19,17,15,18),
+                     labels = c("D-O fall", "S-J late GS", "J-A early GS", "M-J winter"),
+                     name = "Seasons"
+                     )+
+  coord_cartesian(ylim =c(0, current_xy_values$ylim), clip = "off")+
+    facet_wrap(~cat, nrow=4,
+               labeller = labeller(cat = c("1" = "Intact", "3" = "Intact: without transient community ", "2" = "Disturbed", "4" = "Disturbed: without transient community ")))+
+  ylab(paste0("Monthly importance weights of ",summaryVar[Var,3],"\n (posterior mean ± 95% CIs)"))+
+    xlab(NULL)+
+  theme_facet + #pre-defined themes for facet graphs
+  theme(legend.position = "right",
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+          plot.margin = margin(t = 5, r = 5, b = 20, l = 5)) +
+  guides(shape = guide_legend(override.aes = list(alpha=1,size=4)),
+         fill = guide_legend(override.aes = list(alpha=1,size=4, shape=c(19,19),color=c("black","gray70"))),
+         color = guide_legend(override.aes = list(alpha=1,size=4, shape=19, color=c(colntrt[9], colntrt[1:8],
+                                                                             NA,NA,NA,NA,NA,NA,NA,NA,NA))))+
+  annotate("segment", y=0, yend=current_xy_values$ylim, x=-Inf, xend=-Inf, color = "gray20")+
+  geom_text(data = temp_df,
+          aes(x = x, y = y, label = label),
+          inherit.aes = FALSE,
+          color = "gray30",
+          fontface = "bold",
+          size = 3.5)+
+  geom_segment(data = temp_df,
+             aes(x = x - 0.1, xend = x + 0.1, y = y + 0.015, yend = y + 0.015),
+             inherit.aes = FALSE,
+             color = "black",
+             linewidth = 1)+
+geom_segment(data = data.frame(x = seq(0.865, 9, by = 1)),
+             aes(x = x, xend = x, y = 0, yend = current_xy_values$ylim),
+             color = "gray", linetype = "dashed",
+             inherit.aes = FALSE) +
+geom_segment(data = data.frame(x = seq(1.13, 10, by = 1)),
+             aes(x = x, xend = x, y = 0, yend = current_xy_values$ylim),
+             color = "gray", linetype = "dashed",
+             inherit.aes = FALSE)
+
+final_a <- ggdraw(a) +
+  # Rain cloud
+  draw_image(image = current_xy_values$icon, x = current_xy_values$x_icon, y =  current_xy_values$y_icon, scale = current_xy_values$icon_scale) +
+  draw_label("a)", x = 0.053, y = 0.986, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("b)", x = 0.053, y = 0.746, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("c)", x = 0.053, y = 0.506, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("d)", x = 0.053, y = 0.266, size = 15, fontface = "bold", hjust = 0, vjust = 1)
+final_a
+
+# saves
+    ggsave(paste0(file.path(graph.wd),"/FigSX_MonthlyWeight_",summaryVar[Var,1],"_",summaryVar[Var,5],".png"), plot = last_plot(), width=15, height=8, dpi = res_export, units="in")
+    
+}
+```
+
+- [SI] Cumulative weights
+Creating dataset - live biomass
+```{r}
+cumulativeWeight <- WEIGHTMomodelpar %>%
+  group_by(dur, exp, ntrt, variable) %>%
+  arrange(exp, ntrt, variable, month) %>%
+  mutate(cumulative_sum = cumsum(statistics.Mean),
+         shape=ifelse(exp==1,16,19))
+```
+
+Plot: Precipitation - live biomass
+```{r}
+#SEASONS
+a<-cumulativeWeight %>% 
+  filter(variable==1) %>% 
+  filter(ntrt %in% c(1,8)) %>% 
+  ggplot(aes(x=month, y=cumulative_sum, color=as.factor(ntrt)))+
+  annotate("rect", xmin = 3.5, xmax = 9.5, ymin = -Inf, ymax = Inf, alpha = .05) +
+  annotate("rect", xmin = 15.5, xmax = 21.5, ymin = -Inf, ymax = Inf, alpha = .05) +
+  annotate("rect", xmin = 27.5, xmax = 33.5, ymin = -Inf, ymax = Inf, alpha = .05) +
+  geom_vline(xintercept = seq(3.5, 36, by = 3), color = "gray", linetype = "dashed") +
+  geom_vline(xintercept = seq(12.5, 36, by = 12), color = "gray50") +
+  geom_point(aes(shape = as.factor(exp)), size=4, alpha=0.5) +
+  geom_hline(yintercept = 0.5, linetype = "dotted", color = "gray5")+
+  geom_hline(yintercept = 0.75, linetype = "dotted", color = "gray5")+
+  geom_hline(yintercept = 0.90, linetype = "dotted", color = "gray5")+
+  scale_color_manual(values = c(colntrt[1],colntrt[8]),labels = c("0 + All","27.2 + All")) +
+  facet_wrap(~dur, nrow=2, #scales = "free_y",
+             labeller = labeller(dur = c("1" = "Precipitation: All Years", "2" = "Precipitation: No Transient Community"))) +
+  scale_shape_manual(values = c(16, 17),labels = c("Intact", "Disturbed"))+
+  scale_x_continuous(expand = c(0.01,0),
+                       breaks = seq(2,36, by=3)) +
+  coord_cartesian(ylim = c(0,1), 
+                    xlim=c(0.5,36), clip = "off")+
+  ylab("Cumulative memory weight")+
+  theme_facet2 + 
+  theme(legend.margin=margin(0,0,0,0),
+        legend.position = c(0.93,0.15),
+        legend.text = element_text(size=8),
+        legend.title = element_blank(),
+        legend.spacing = unit(0, "cm"),
+        # axis.text = element_text(size = 12),
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.title = element_text(size = 12, face = "bold"),
+        # axis.title.x = element_blank(),
+        strip.text = element_text(face = "bold", size = 11),
+        plot.margin = margin(t = 5, r = 5, b = 5, l = 5),
+        legend.key = element_blank(),
+        legend.background = element_rect(fill = "white", color = NA)) +
+  guides(shape = guide_legend(override.aes = list(shape=c(19,17),alpha=1, size=3.5)),
+         color = guide_legend(override.aes = list(size=4, shape=c(15)))) +
+  geom_segment(data = filter(cumulativeWeight), 
+               aes(x = 0.14, xend = 0.14, y = 0, yend = 1), inherit.aes = FALSE, color="gray20") +
+  geom_segment(data = filter(cumulativeWeight, variable == 2), 
+               aes(x = 1, xend = 36, y = -Inf, yend = -Inf), inherit.aes = FALSE, color="gray20")+
+  annotate("text", x = 4, y = 0.53, label = "50% memory", color = "gray5", fontface = "bold", size = 3.5) +
+  annotate("text", x = 4, y = 0.77, label = "75% memory", color = "gray5", fontface = "bold", size = 3.5)+
+  annotate("text", x = 4, y = 0.93, label = "90% memory", color = "gray5", fontface = "bold", size = 3.5) 
+  # annotate("text", x = 6.5, y = -0.27, label = "y0", color = "gray30", fontface = "bold", size = 3.5) +
+  # annotate("text", x = 18.5, y = -0.27, label = "y-1", color = "gray30", fontface = "bold", size = 3.5) + 
+  # annotate("text", x = 30.5, y = -0.27, label = "y-2", color = "gray30", fontface = "bold", size = 3.5)
+
+final_a <- ggdraw(a) +
+  draw_label("a)", x = 0.095, y = 0.976, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("b)", x = 0.095, y = 0.486, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
+  # Rain cloud
+  draw_image(image = icon_rain, x = -0.447, y = 0.46, scale = 0.040) 
+ 
+ final_a
+
+# ggsave(file.path(graph.wd,"Precip_CumulativeWeight_Seasons.png"), plot = last_plot(), width=7, height=6, dpi = res_export, units="in")
+
+```
+
+Plot: Temperature - live biomass
+```{r}
+#SEASONS
+b<-cumulativeWeight %>% 
+  filter(variable==2) %>% 
+  filter(ntrt %in% c(1,8)) %>% 
+  ggplot(aes(x=month, y=cumulative_sum, color=as.factor(ntrt)))+
+  annotate("rect", xmin = 3.5, xmax = 9.5, ymin = -Inf, ymax = Inf, alpha = .05) +
+  annotate("rect", xmin = 15.5, xmax = 21.5, ymin = -Inf, ymax = Inf, alpha = .05) +
+  annotate("rect", xmin = 27.5, xmax = 33.5, ymin = -Inf, ymax = Inf, alpha = .05) +
+  geom_vline(xintercept = seq(3.5, 36, by = 3), color = "gray", linetype = "dashed") +
+  geom_vline(xintercept = seq(12.5, 36, by = 12), color = "gray50") +
+  geom_point(aes(shape = as.factor(exp)), size=4, alpha=0.5) +
+  geom_hline(yintercept = 0.5, linetype = "dotted", color = "gray5")+
+  geom_hline(yintercept = 0.75, linetype = "dotted", color = "gray5")+
+  geom_hline(yintercept = 0.90, linetype = "dotted", color = "gray5")+
+  scale_color_manual(values = c(colntrt[1],colntrt[8]),labels = c("0 + All","27.2 + All")) +
+  facet_wrap(~dur, nrow=2, #scales = "free_y",
+             labeller = labeller(dur = c("1" = "Temperature: All Years", "2" = "Temperature: No Transient Community"))) +
+  scale_shape_manual(values = c(16, 17),labels = c("Intact", "Disturbed"))+
+  scale_x_continuous(expand = c(0.01,0),
+                       breaks = seq(2,36, by=3),
+                       labels = rep(c("D-O\nfall","S-J\nlate\nGS","J-A\nearly\nGS","M-J\nwinter"), times=3)) +
+  coord_cartesian(ylim = c(0,1), 
+                    xlim=c(0.5,36), clip = "off")+
+  ylab("Cumulative memory weight")+
+  theme_facet2 + 
+  theme(legend.margin=margin(0,0,0,0),
+        legend.position = c(0.93,0.15),
+        legend.text = element_text(size=8),
+        legend.title = element_blank(),
+        legend.spacing = unit(0, "cm"),
+        # axis.text = element_text(size = 12),
+        axis.title.x = element_blank(),
+        axis.title = element_text(size = 12, face = "bold"),
+        # axis.title.x = element_blank(),
+        strip.text = element_text(face = "bold", size = 11),
+        plot.margin = margin(t = 5, r = 5, b = 10, l = 5),
+        legend.key = element_blank(),
+        legend.background = element_rect(fill = "white", color = NA)) +
+  guides(shape = guide_legend(override.aes = list(shape=c(19,17),alpha=1, size=3.5)),
+         color = guide_legend(override.aes = list(size=4, shape=c(15)))) +
+  geom_segment(data = filter(cumulativeWeight), 
+               aes(x = 0.14, xend = 0.14, y = 0, yend = 1), inherit.aes = FALSE, color="gray20") +
+  geom_segment(data = filter(cumulativeWeight, variable == 2), 
+               aes(x = 1, xend = 36, y = -Inf, yend = -Inf), inherit.aes = FALSE, color="gray20")+
+  annotate("text", x = 4, y = 0.53, label = "50% memory", color = "gray5", fontface = "bold", size = 3.5) +
+  annotate("text", x = 4, y = 0.77, label = "75% memory", color = "gray5", fontface = "bold", size = 3.5)+
+  annotate("text", x = 4, y = 0.93, label = "90% memory", color = "gray5", fontface = "bold", size = 3.5) +
+  annotate("text", x = 6.5, y = -0.28, label = "y0", color = "gray30", fontface = "bold", size = 3.5) +
+  annotate("text", x = 18.5, y = -0.28, label = "y-1", color = "gray30", fontface = "bold", size = 3.5) + 
+  annotate("text", x = 30.5, y = -0.28, label = "y-2", color = "gray30", fontface = "bold", size = 3.5)
+
+final_b <- ggdraw(b) +
+  draw_label("c)", x = 0.095, y = 0.976, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("d)", x = 0.095, y = 0.526, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
+  # Temp thermometer
+  draw_image(image = icon_temp, x = -0.440, y = 0.46, scale = 0.040) 
+
+ final_b
+
+# ggsave(file.path(graph.wd,"Temp_CumulativeWeight_Seasons.png"), plot = last_plot(), width=7, height=6, dpi = res_export, units="in")
+
+```
+
+Merge plots
+```{r}
+left_column <- plot_grid(final_a, final_b, ncol = 1)
+left_column
+ggsave(file.path(graph.wd,"FigSZ_CumulativeWeight_Seasons_LiveBiomass.png"), plot = last_plot(), width=7, height=10, dpi = res_export, units="in")
+```
+
+- [SI] Cumulative weights
+Creating dataset - dead biomass
+```{r}
+lcumulativeWeight <- lWEIGHTMomodelpar %>%
+  group_by(dur, exp, ntrt, variable) %>%
+  arrange(exp, ntrt, variable, month) %>%
+  mutate(cumulative_sum = cumsum(statistics.Mean),
+         shape=ifelse(exp==1,16,19))
+```
+
+Plot: Precipitation - dead biomass
+```{r}
+#SEASONS
+a<-lcumulativeWeight %>% 
+  filter(variable==1) %>% 
+  filter(ntrt %in% c(1,8)) %>% 
+  ggplot(aes(x=month, y=cumulative_sum, color=as.factor(ntrt)))+
+  annotate("rect", xmin = 3.5, xmax = 9.5, ymin = -Inf, ymax = Inf, alpha = .05) +
+  annotate("rect", xmin = 15.5, xmax = 21.5, ymin = -Inf, ymax = Inf, alpha = .05) +
+  annotate("rect", xmin = 27.5, xmax = 33.5, ymin = -Inf, ymax = Inf, alpha = .05) +
+  geom_vline(xintercept = seq(3.5, 36, by = 3), color = "gray", linetype = "dashed") +
+  geom_vline(xintercept = seq(12.5, 36, by = 12), color = "gray50") +
+  geom_point(aes(shape = as.factor(exp)), size=4, alpha=0.5) +
+  geom_hline(yintercept = 0.5, linetype = "dotted", color = "gray5")+
+  geom_hline(yintercept = 0.75, linetype = "dotted", color = "gray5")+
+  geom_hline(yintercept = 0.90, linetype = "dotted", color = "gray5")+
+  scale_color_manual(values = c(colntrt[1],colntrt[8]),labels = c("0 + All","27.2 + All")) +
+  facet_wrap(~dur, nrow=2, #scales = "free_y",
+             labeller = labeller(dur = c("1" = "Precipitation: All Years", "2" = "Precipitation: No Transient Community"))) +
+  scale_shape_manual(values = c(16, 17),labels = c("Intact", "Disturbed"))+
+  scale_x_continuous(expand = c(0.01,0),
+                       breaks = seq(2,36, by=3)) +
+  coord_cartesian(ylim = c(0,1), 
+                    xlim=c(0.5,36), clip = "off")+
+  ylab("Cumulative memory weight")+
+  theme_facet2 + 
+  theme(legend.margin=margin(0,0,0,0),
+        legend.position = c(0.93,0.15),
+        legend.text = element_text(size=8),
+        legend.title = element_blank(),
+        legend.spacing = unit(0, "cm"),
+        # axis.text = element_text(size = 12),
+        axis.title.x = element_blank(),
+        axis.text.x = element_blank(),
+        axis.title = element_text(size = 12, face = "bold"),
+        # axis.title.x = element_blank(),
+        strip.text = element_text(face = "bold", size = 11),
+        plot.margin = margin(t = 5, r = 5, b = 5, l = 5),
+        legend.key = element_blank(),
+        legend.background = element_rect(fill = "white", color = NA)) +
+  guides(shape = guide_legend(override.aes = list(shape=c(19,17),alpha=1, size=3.5)),
+         color = guide_legend(override.aes = list(size=4, shape=c(15)))) +
+  geom_segment(data = filter(cumulativeWeight), 
+               aes(x = 0.14, xend = 0.14, y = 0, yend = 1), inherit.aes = FALSE, color="gray20") +
+  geom_segment(data = filter(cumulativeWeight, variable == 2), 
+               aes(x = 1, xend = 36, y = -Inf, yend = -Inf), inherit.aes = FALSE, color="gray20")+
+  annotate("text", x = 4, y = 0.53, label = "50% memory", color = "gray5", fontface = "bold", size = 3.5) +
+  annotate("text", x = 4, y = 0.77, label = "75% memory", color = "gray5", fontface = "bold", size = 3.5)+
+  annotate("text", x = 4, y = 0.93, label = "90% memory", color = "gray5", fontface = "bold", size = 3.5) 
+  # annotate("text", x = 6.5, y = -0.27, label = "y0", color = "gray30", fontface = "bold", size = 3.5) +
+  # annotate("text", x = 18.5, y = -0.27, label = "y-1", color = "gray30", fontface = "bold", size = 3.5) + 
+  # annotate("text", x = 30.5, y = -0.27, label = "y-2", color = "gray30", fontface = "bold", size = 3.5)
+
+final_a <- ggdraw(a) +
+  draw_label("a)", x = 0.095, y = 0.976, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("b)", x = 0.095, y = 0.486, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
+  # Rain cloud
+  draw_image(image = icon_rain, x = -0.447, y = 0.46, scale = 0.040) 
+ 
+ final_a
+
+# ggsave(file.path(graph.wd,"Precip_CumulativeWeight_Seasons.png"), plot = last_plot(), width=7, height=6, dpi = res_export, units="in")
+
+```
+
+Plot: Temperature - dead biomass
+```{r}
+#SEASONS
+b<-lcumulativeWeight %>% 
+  filter(variable==2) %>% 
+  filter(ntrt %in% c(1,8)) %>% 
+  ggplot(aes(x=month, y=cumulative_sum, color=as.factor(ntrt)))+
+  annotate("rect", xmin = 3.5, xmax = 9.5, ymin = -Inf, ymax = Inf, alpha = .05) +
+  annotate("rect", xmin = 15.5, xmax = 21.5, ymin = -Inf, ymax = Inf, alpha = .05) +
+  annotate("rect", xmin = 27.5, xmax = 33.5, ymin = -Inf, ymax = Inf, alpha = .05) +
+  geom_vline(xintercept = seq(3.5, 36, by = 3), color = "gray", linetype = "dashed") +
+  geom_vline(xintercept = seq(12.5, 36, by = 12), color = "gray50") +
+  geom_point(aes(shape = as.factor(exp)), size=4, alpha=0.5) +
+  geom_hline(yintercept = 0.5, linetype = "dotted", color = "gray5")+
+  geom_hline(yintercept = 0.75, linetype = "dotted", color = "gray5")+
+  geom_hline(yintercept = 0.90, linetype = "dotted", color = "gray5")+
+  scale_color_manual(values = c(colntrt[1],colntrt[8]),labels = c("0 + All","27.2 + All")) +
+  facet_wrap(~dur, nrow=2, #scales = "free_y",
+             labeller = labeller(dur = c("1" = "Temperature: All Years", "2" = "Temperature: No Transient Community"))) +
+  scale_shape_manual(values = c(16, 17),labels = c("Intact", "Disturbed"))+
+  scale_x_continuous(expand = c(0.01,0),
+                       breaks = seq(2,36, by=3),
+                       labels = rep(c("D-O\nfall","S-J\nlate\nGS","J-A\nearly\nGS","M-J\nwinter"), times=3)) +
+  coord_cartesian(ylim = c(0,1), 
+                    xlim=c(0.5,36), clip = "off")+
+  ylab("Cumulative memory weight")+
+  theme_facet2 + 
+  theme(legend.margin=margin(0,0,0,0),
+        legend.position = c(0.93,0.15),
+        legend.text = element_text(size=8),
+        legend.title = element_blank(),
+        legend.spacing = unit(0, "cm"),
+        # axis.text = element_text(size = 12),
+        axis.title.x = element_blank(),
+        axis.title = element_text(size = 12, face = "bold"),
+        # axis.title.x = element_blank(),
+        strip.text = element_text(face = "bold", size = 11),
+        plot.margin = margin(t = 5, r = 5, b = 10, l = 5),
+        legend.key = element_blank(),
+        legend.background = element_rect(fill = "white", color = NA)) +
+  guides(shape = guide_legend(override.aes = list(shape=c(19,17),alpha=1, size=3.5)),
+         color = guide_legend(override.aes = list(size=4, shape=c(15)))) +
+  geom_segment(data = filter(cumulativeWeight), 
+               aes(x = 0.14, xend = 0.14, y = 0, yend = 1), inherit.aes = FALSE, color="gray20") +
+  geom_segment(data = filter(cumulativeWeight, variable == 2), 
+               aes(x = 1, xend = 36, y = -Inf, yend = -Inf), inherit.aes = FALSE, color="gray20")+
+  annotate("text", x = 4, y = 0.53, label = "50% memory", color = "gray5", fontface = "bold", size = 3.5) +
+  annotate("text", x = 4, y = 0.77, label = "75% memory", color = "gray5", fontface = "bold", size = 3.5)+
+  annotate("text", x = 4, y = 0.93, label = "90% memory", color = "gray5", fontface = "bold", size = 3.5) +
+  annotate("text", x = 6.5, y = -0.28, label = "y0", color = "gray30", fontface = "bold", size = 3.5) +
+  annotate("text", x = 18.5, y = -0.28, label = "y-1", color = "gray30", fontface = "bold", size = 3.5) + 
+  annotate("text", x = 30.5, y = -0.28, label = "y-2", color = "gray30", fontface = "bold", size = 3.5)
+
+final_b <- ggdraw(b) +
+  draw_label("c)", x = 0.095, y = 0.976, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("d)", x = 0.095, y = 0.526, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
+  # Temp thermometer
+  draw_image(image = icon_temp, x = -0.440, y = 0.46, scale = 0.040) 
+
+ final_b
+
+# ggsave(file.path(graph.wd,"Temp_CumulativeWeight_Seasons.png"), plot = last_plot(), width=7, height=6, dpi = res_export, units="in")
+
+```
+
+Merge plots
+```{r}
+left_column <- plot_grid(final_a, final_b, ncol = 1)
+left_column
+ggsave(file.path(graph.wd,"FigSZ_CumulativeWeight_Seasons_DeadBiomass.png"), plot = last_plot(), width=7, height=10, dpi = res_export, units="in")
+```
+
+
+# Main
+- [Main] Yearly weights
+Creating dataset - live biomass
+```{r}
+#dataframe
+WEIGHTYrmodelpar<- parameters_All %>% 
+  filter(grepl("^yr.w",parameter)) %>% 
+  mutate(ntrt = factor(rep(1:9,times=24, each=1), levels = order_levels),
+         ntrtLong = factor(rep(c("0 + All", "1 + All", "2 + All", "3.4 + All", "5.4 + All", "9.5 + All", "17 + All", "27.2 + All", "0 + None"), times=24, each=1), levels = ntrtLong_levels),
+         year = rep(0:2,times=8, each=9),
+         variable = rep(1:2,times=4, each=27),
+         month = rep(c(6.5,18.5,30.5),times=8, each=9),
+         cat = ifelse(exp==1&dur==1, 1, ifelse(exp==2&dur==1, 2, ifelse(exp==1&dur==2, 3,4))))
+
+WEIGHTYrmodelpar1 <- WEIGHTYrmodelpar %>% 
+  mutate(year = factor(ifelse(month==6.5, "y0", ifelse(month==18.5,"y-1","y-2")), levels = c("y0","y-1","y-2")),
+         cat2 = ifelse(exp==1&dur==1, 1, ifelse(exp==2&dur==1, 3, ifelse(exp==1&dur==2, 2,4))))
+
+# define how much to dodge
+dodge_width <- 0.5
+
+# define position of some features within the graph
+xy_values_icon <- list(
+  Var1 = list("x_icon" = -0.45, "y_icon" =  0.474, "icon" = icon_rain, "ylim" = 0.7, "letter" = "a)"), 
+  Var2 = list("x_icon" = -0.44, "y_icon" =  0.474, "icon" = icon_temp, "ylim" = 0.8, "letter" = "b)")
+)
+```
+
+Plot: Precipitation - live biomass
+```{r}
+#ribbons linking monthly error bars (Months and Years)
+# for (Var in 1:(nrow(summaryVar)-2)) { # as only 2 graphs are going to be generated here
+Var <- 1
+
+current_xy_values <- xy_values_icon[[Var]]
+
+a <- WEIGHTYrmodelpar1 %>% 
+  filter(variable==Var) %>% 
+  ggplot(aes(x=ntrtLong,y=`statistics.Mean`,
+             color=as.factor(cat),
+             group=month
+             ))+
+  geom_hline(yintercept = 0, linetype = "dashed", color = "darkgray")+
+  geom_errorbar(aes(ymin=`quantiles.2.5.`, ymax=`quantiles.97.5.`),
+                width=0.3,
+                linewidth=0.7, 
+                position=position_dodge(width=dodge_width))+
+  geom_point(aes(shape=as.factor(year),
+                 fill=as.factor(cat)),
+                 size=3,
+             position=position_dodge(width=dodge_width)
+             )+
+  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
+  scale_fill_manual(values = c(1:4),
+                    labels = c("Intact","Intact\nno transient", "Disturbed","Disturbed\nno transient"))+
+  scale_shape_manual(values = c(19,17,15),
+                     labels = c("Current year", "Year -1", "Year -2"))+
+  coord_cartesian(ylim =c(0, current_xy_values$ylim), clip = "off")+
+    facet_wrap(~cat, nrow=4,labeller = labeller(cat = c("1" = "Intact", "3" = "Intact: without transient community ", "2" = "Disturbed", "4" = "Disturbed: without transient community ")))+
+  ylab(paste0("Yearly importance weights of ",summaryVar[Var,3],"\n (posterior mean ± 95% CIs)"))+
+    xlab(NULL)+
+  theme_facet + #pre-defined themes for facet graphs
+  theme(legend.position = "none",
+        axis.text.x = element_text(size=10),
+          plot.margin = margin(t = 5, r = 5, b = 25, l = 5)) +
+  # guides(shape = guide_legend(override.aes = list(alpha=1,size=4)),
+  #        fill = "none",
+         # color = "none")+
+  annotate("segment", y=0, yend=current_xy_values$ylim, x=-Inf, xend=-Inf, color = "gray20")+
+  geom_segment(data = filter(WEIGHTYrmodelpar1, cat2==4), 
+               aes(x = 1, xend = 9, y = -Inf, yend = -Inf), inherit.aes = FALSE, color="gray20")
+
+final_a <- ggdraw(a) +
+  # Rain cloud
+  draw_image(image = current_xy_values$icon, x = current_xy_values$x_icon, y =  current_xy_values$y_icon, scale = 0.04) +
+  draw_label("a)", x = 0.1, y = 0.984, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("b)", x = 0.1, y = 0.752, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("c)", x = 0.1, y = 0.521, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("d)", x = 0.1, y = 0.290, size = 14, fontface = "bold", hjust = 0, vjust = 1)
+final_a
+
+# saves
+    # ggsave(paste0(file.path(graph.wd),"/YearWeight_",summaryVar[Var,1],".png"), plot = last_plot(), width=9.5, height=8, dpi = res_export, units="in")
+```
+
+Plot: Temperature - live biomass
+```{r}
+## Temperature
+Var <- 2
+
+current_xy_values <- xy_values_icon[[Var]]
+
+b <- WEIGHTYrmodelpar1 %>% 
+  filter(variable==Var) %>% 
+  ggplot(aes(x=ntrtLong,y=`statistics.Mean`,
+             color=as.factor(cat),
+             group=month
+             ))+
+  geom_hline(yintercept = 0, linetype = "dashed", color = "darkgray")+
+  geom_errorbar(aes(ymin=`quantiles.2.5.`, ymax=`quantiles.97.5.`),
+                width=0.3,
+                linewidth=0.7, 
+                position=position_dodge(width=dodge_width))+
+  geom_point(aes(shape=as.factor(year),
+                 fill=as.factor(cat)),
+                 size=3,
+             position=position_dodge(width=dodge_width)
+             )+
+  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
+  scale_fill_manual(values = c(1:4),
+                    labels = c("Intact","Intact\nno transient", "Disturbed","Disturbed\nno transient"))+
+  scale_shape_manual(values = c(19,17,15),
+                     labels = c("Current year  ", "Year -1", "Year -2"))+
+  coord_cartesian(ylim =c(0, current_xy_values$ylim), clip = "off")+
+    facet_wrap(~cat, nrow=4,labeller = labeller(cat = c("1" = "Intact", "3" = "Intact: without transient community ", "2" = "Disturbed", "4" = "Disturbed: without transient community ")))+
+  ylab(paste0("Yearly importance weights of ",summaryVar[Var,3],"\n (posterior mean ± 95% CIs)"))+
+    xlab(NULL)+
+  theme_facet + #pre-defined themes for facet graphs
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        legend.text = element_text(size=10),
+        legend.margin = margin(t=-5,r=5,b=1,l=-5),
+        axis.text.x = element_text(size=10),
+          plot.margin = margin(t = 5, r = 5, b = 0, l = 5)) +
+  guides(shape = guide_legend(override.aes = list(alpha=1,size=4)),
+         fill = "none",
+         color = "none")+
+  annotate("segment", y=0, yend=current_xy_values$ylim, x=-Inf, xend=-Inf, color = "gray20")+
+  geom_segment(data = filter(WEIGHTYrmodelpar1, cat2==4), 
+               aes(x = 1, xend = 9, y = -Inf, yend = -Inf), inherit.aes = FALSE, color="gray20")
+
+final_b <- ggdraw(b) +
+  # Rain cloud
+  draw_image(image = current_xy_values$icon, x = current_xy_values$x_icon, y =  current_xy_values$y_icon, scale = 0.035) +
+  draw_label("e)", x = 0.1, y = 0.984, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("f)", x = 0.1, y = 0.752, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("g)", x = 0.1, y = 0.523, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("h)", x = 0.1, y = 0.288, size = 14, fontface = "bold", hjust = 0, vjust = 1)
+final_b
+
+# saves
+    # ggsave(paste0(file.path(graph.wd),"/YearWeight_",summaryVar[Var,1],".png"), plot = last_plot(), width=9.5, height=8, dpi = res_export, units="in")
+# }
+    
+```
+
+Merge plots - live biomass
+```{r}
+left_column <- plot_grid(final_a, final_b, ncol = 2, rel_widths = c(1, 1))
+left_column
+ggsave(file.path(graph.wd,"Fig3_YearWeight_LiveBiomass.png"), plot = last_plot(), width=15, height=7, dpi = res_export, units="in")
+```
+
+Creating dataset: dead biomass
+```{r}
+#dataframe
+lWEIGHTYrmodelpar<- parameters_All_litter %>% 
+  filter(grepl("^yr.w",parameter)) %>% 
+  mutate(ntrt = factor(rep(1:9,times=24, each=1), levels = order_levels),
+         ntrtLong = factor(rep(c("0 + All", "1 + All", "2 + All", "3.4 + All", "5.4 + All", "9.5 + All", "17 + All", "27.2 + All", "0 + None"), times=24, each=1), levels = ntrtLong_levels),
+         year = rep(0:2,times=8, each=9),
+         variable = rep(1:2,times=4, each=27),
+         month = rep(c(6.5,18.5,30.5),times=8, each=9),
+         cat = ifelse(exp==1&dur==1, 1, ifelse(exp==2&dur==1, 2, ifelse(exp==1&dur==2, 3,4))))
+
+lWEIGHTYrmodelpar1 <- lWEIGHTYrmodelpar %>% 
+  mutate(year = factor(ifelse(month==6.5, "y0", ifelse(month==18.5,"y-1","y-2")), levels = c("y0","y-1","y-2")),
+         cat2 = ifelse(exp==1&dur==1, 1, ifelse(exp==2&dur==1, 3, ifelse(exp==1&dur==2, 2,4))))
+
+# define how much to dodge
+dodge_width <- 0.5
+
+# define position of some features within the graph
+xy_values_icon <- list(
+  Var1 = list("x_icon" = -0.44, "y_icon" =  0.474, "icon" = icon_rain, "ylim" = 0.75, "letter" = "a)"), 
+  Var2 = list("x_icon" = -0.44, "y_icon" =  0.474, "icon" = icon_temp, "ylim" = 0.85, "letter" = "b)")
+)
+```
+
+Plot: Precipitation - dead biomass
+```{r}
+#ribbons linking monthly error bars (Months and Years)
+# for (Var in 1:(nrow(summaryVar)-2)) { # as only 2 graphs are going to be generated here
+Var <- 1
+
+current_xy_values <- xy_values_icon[[Var]]
+
+a <- lWEIGHTYrmodelpar1 %>% 
+  filter(variable==Var) %>% 
+  ggplot(aes(x=ntrtLong,y=`statistics.Mean`,
+             color=as.factor(cat),
+             group=month
+             ))+
+  geom_hline(yintercept = 0, linetype = "dashed", color = "darkgray")+
+  geom_errorbar(aes(ymin=`quantiles.2.5.`, ymax=`quantiles.97.5.`),
+                width=0.3,
+                linewidth=0.7, 
+                position=position_dodge(width=dodge_width))+
+  geom_point(aes(shape=as.factor(year),
+                 fill=as.factor(cat)),
+                 size=3,
+             position=position_dodge(width=dodge_width)
+             )+
+  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
+  scale_fill_manual(values = c(1:4),
+                    labels = c("Intact","Intact\nno transient", "Disturbed","Disturbed\nno transient"))+
+  scale_shape_manual(values = c(19,17,15),
+                     labels = c("Current year", "Year -1", "Year -2"))+
+  coord_cartesian(ylim =c(0, current_xy_values$ylim), clip = "off")+
+    facet_wrap(~cat, nrow=4,labeller = labeller(cat = c("1" = "Intact", "3" = "Intact: without transient community ", "2" = "Disturbed", "4" = "Disturbed: without transient community ")))+
+  ylab(paste0("Yearly importance weights of ",summaryVar[Var,3],"\n (posterior mean ± 95% CIs)"))+
+    xlab(NULL)+
+  theme_facet + #pre-defined themes for facet graphs
+  theme(legend.position = "none",
+        axis.text.x = element_text(size=10),
+          plot.margin = margin(t = 5, r = 5, b = 25, l = 5)) +
+  # guides(shape = guide_legend(override.aes = list(alpha=1,size=4)),
+  #        fill = "none",
+         # color = "none")+
+  annotate("segment", y=0, yend=current_xy_values$ylim, x=-Inf, xend=-Inf, color = "gray20")+
+  geom_segment(data = filter(WEIGHTYrmodelpar1, cat2==4), 
+               aes(x = 1, xend = 9, y = -Inf, yend = -Inf), inherit.aes = FALSE, color="gray20")
+
+final_a <- ggdraw(a) +
+  # Rain cloud
+  draw_image(image = current_xy_values$icon, x = current_xy_values$x_icon, y =  current_xy_values$y_icon, scale = 0.04) +
+  draw_label("a)", x = 0.1, y = 0.984, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("b)", x = 0.1, y = 0.752, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("c)", x = 0.1, y = 0.521, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("d)", x = 0.1, y = 0.290, size = 14, fontface = "bold", hjust = 0, vjust = 1)
+final_a
+
+# saves
+    # ggsave(paste0(file.path(graph.wd),"/YearWeight_",summaryVar[Var,1],".png"), plot = last_plot(), width=9.5, height=8, dpi = res_export, units="in")
+```
+
+Plot: Temperature - dead biomass
+```{r}
+## Temperature
+Var <- 2
+
+current_xy_values <- xy_values_icon[[Var]]
+
+b <- lWEIGHTYrmodelpar1 %>% 
+  filter(variable==Var) %>% 
+  ggplot(aes(x=ntrtLong,y=`statistics.Mean`,
+             color=as.factor(cat),
+             group=month
+             ))+
+  geom_hline(yintercept = 0, linetype = "dashed", color = "darkgray")+
+  geom_errorbar(aes(ymin=`quantiles.2.5.`, ymax=`quantiles.97.5.`),
+                width=0.3,
+                linewidth=0.7, 
+                position=position_dodge(width=dodge_width))+
+  geom_point(aes(shape=as.factor(year),
+                 fill=as.factor(cat)),
+                 size=3,
+             position=position_dodge(width=dodge_width)
+             )+
+  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
+  scale_fill_manual(values = c(1:4),
+                    labels = c("Intact","Intact\nno transient", "Disturbed","Disturbed\nno transient"))+
+  scale_shape_manual(values = c(19,17,15),
+                     labels = c("Current year  ", "Year -1", "Year -2"))+
+  coord_cartesian(ylim =c(0, current_xy_values$ylim), clip = "off")+
+    facet_wrap(~cat, nrow=4,labeller = labeller(cat = c("1" = "Intact", "3" = "Intact: without transient community ", "2" = "Disturbed", "4" = "Disturbed: without transient community ")))+
+  ylab(paste0("Yearly importance weights of ",summaryVar[Var,3],"\n (posterior mean ± 95% CIs)"))+
+    xlab(NULL)+
+  theme_facet + #pre-defined themes for facet graphs
+  theme(legend.position = "bottom",
+        legend.title = element_blank(),
+        legend.text = element_text(size=10),
+        legend.margin = margin(t=-5,r=5,b=1,l=-5),
+        axis.text.x = element_text(size=10),
+          plot.margin = margin(t = 5, r = 5, b = 0, l = 5)) +
+  guides(shape = guide_legend(override.aes = list(alpha=1,size=4)),
+         fill = "none",
+         color = "none")+
+  annotate("segment", y=0, yend=current_xy_values$ylim, x=-Inf, xend=-Inf, color = "gray20")+
+  geom_segment(data = filter(WEIGHTYrmodelpar1, cat2==4), 
+               aes(x = 1, xend = 9, y = -Inf, yend = -Inf), inherit.aes = FALSE, color="gray20")
+
+final_b <- ggdraw(b) +
+  # Rain cloud
+  draw_image(image = current_xy_values$icon, x = current_xy_values$x_icon, y =  current_xy_values$y_icon, scale = 0.035) +
+  draw_label("e)", x = 0.1, y = 0.984, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("f)", x = 0.1, y = 0.752, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("g)", x = 0.1, y = 0.523, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("h)", x = 0.1, y = 0.288, size = 14, fontface = "bold", hjust = 0, vjust = 1)
+final_b
+
+# saves
+    # ggsave(paste0(file.path(graph.wd),"/YearWeight_",summaryVar[Var,1],".png"), plot = last_plot(), width=9.5, height=8, dpi = res_export, units="in")
+# }
+    
+```
+
+Merge plots - dead biomass
+```{r}
+left_column <- plot_grid(final_a, final_b, ncol = 2, rel_widths = c(1, 1))
+left_column
+ggsave(file.path(graph.wd,"Fig5_YearWeight_DeadBiomass.png"), plot = last_plot(), width=15, height=7, dpi = res_export, units="in")
+```
+
+- [Main] Effect sizes of env var as a function of continuous ntrt
+Creating dataset - live biomass
+```{r}
+## raw data
+ntrt_qtt <- tibble(ntrt = as.factor(c(1:9)),
+                       ntrt_qtt = c(0.0,1.0,2.0,3.4,5.4,9.5,17.0,27.2,0))
+
+Alphamodelpar<- parameters_All %>% 
+  filter(grepl("^mu_a_ntrt.star",parameter)) %>% 
+  mutate(alpha = rep(1:4,times=36),
+         ntrt = factor(rep(1:9,times=4, each=4), levels = order_levels),
+         ntrtLong = factor(rep(c("0 + All", "1 + All", "2 + All", "3.4 + All", "5.4 + All", "9.5 + All", "17 + All", "27.2 + All", "0 + None"),times=4, each=4), levels = ntrtLong_levels),
+         filling=ifelse(`quantiles.2.5.`<0&`quantiles.97.5.`<0|                                                              `quantiles.2.5.`>0&`quantiles.97.5.`>0, "other","white"),
+         shape=ifelse(exp==1,21,24),
+         cat = ifelse(exp==1&dur==1, 1, ifelse(exp==2&dur==1, 2, ifelse(exp==1&dur==2, 3,4)))) %>%
+   filter(!(alpha %in% c(1,4))) %>%  #removing intercept and AR
+  left_join(ntrt_qtt)
+
+## predictions ## NOTE: add biomass column here and in a similar code chunk for litter
+predictions <- precip.pred %>% 
+  filter(grepl("^mu_exp.pred",parameter)) %>% 
+  mutate(exp = rep(1:2, times=28),
+         ntrtpred = rep(c(seq(0,26,1),27.2), each=2)) %>% 
+  bind_rows(temp.pred %>% 
+  filter(grepl("^mu_exp.pred",parameter)) %>% 
+  mutate(exp = rep(1:2, times=28),
+         ntrtpred = rep(c(seq(0,26,1),27.2), each=2))) %>% 
+  bind_rows(precip.pred2 %>% 
+  filter(grepl("^mu_exp.pred",parameter)) %>% 
+  mutate(exp = rep(1:2, times=28),
+         ntrtpred = rep(c(seq(0,26,1),27.2), each=2))) %>% 
+  bind_rows(temp.pred2 %>% 
+  filter(grepl("^mu_exp.pred",parameter)) %>% 
+  mutate(exp = rep(1:2, times=28),
+         ntrtpred = rep(c(seq(0,26,1),27.2), each=2))) %>% 
+  mutate(cat = ifelse(exp==1&dur==1, 1, ifelse(exp==2&dur==1, 2, ifelse(exp==1&dur==2, 3,4))))
+```
+
+Plot: Precipitation - live biomass
+```{r}
+a<-
+  Alphamodelpar %>%
+  filter(alpha==2) %>% 
+  ggplot(aes(x=ntrt_qtt,y=`statistics.Mean`))+
+  geom_hline(yintercept = 0, linetype = "dashed", color = "darkgray")+
+  geom_errorbar(aes(ymin=`quantiles.2.5.`, ymax=`quantiles.97.5.`,color=as.factor(cat)),
+                width=0.3,
+                linewidth=0.4,
+             # color = "gray50",
+             alpha=0.4,
+             show.legend = F)+
+  geom_point(aes(shape = as.factor(exp),color=as.factor(cat)),
+             # shape = df_global_ntrt$shape,
+             size=3,
+             # color = "gray50",
+             alpha=0.5) +
+  geom_line(data=predictions %>% filter(alpha==2), 
+            aes(y=statistics.Mean, x=ntrtpred, colour = as.factor(cat)), 
+            linewidth=1,
+            show.legend = FALSE) +
+  geom_ribbon(data=predictions %>% filter(alpha==2),
+              aes(ymin=quantiles.2.5., ymax=quantiles.97.5., x=ntrtpred,fill = as.factor(cat)), alpha=0.2)+
+  scale_x_continuous(expand = c(0,0),
+                     breaks = c(0.0,1.0,2.0,3.4,5.4,9.5,17.0,27.2))+
+  scale_y_continuous(labels = function(y) format(y, nsmall = 1, digits = 1))+
+  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
+  scale_fill_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
+  scale_shape_manual(values = c(19, 17),
+                     labels = c("Intact","Disturbed")) +
+  facet_wrap(~dur, nrow=2, scales = "free_y",
+             labeller = labeller(dur = c("1" = "Precipitation: All Years", "2" = "Precipitation: No Transient Community")))+
+  xlab(expression(bold("Nutrient addition (g N/m"^2*"/yr)")))+
+  ylab("Effect on live biomass\n(posterior mean ± 95% CIs)")+
+  coord_cartesian(clip = "off",
+                   xlim=c(-0.3,27.2))+
+  theme_regular + 
+  theme(legend.margin=margin(-4,3,2,1),
+        legend.position = c(0.15,0.90),
+        legend.text = element_text(size=12),
+        legend.background = element_blank(),
+        legend.title = element_blank(),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_blank(),
+        axis.ticks.x=element_blank(),
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.title.x = element_blank(),
+        strip.text = element_text(face = "bold", size = 11),
+        plot.margin = margin(t = 5, r = 15, b = 0, l = 5)) +
+  guides(shape = guide_legend(override.aes = list(alpha=1,size=4,
+                                                  color=c(pals::cols25(5)[4],pals::cols25(5)[5]))),
+         color = "none",
+         fill = "none") +
+  # geom_segment(data = filter(Alphamodelpar, dur == 2), 
+  #              aes(x = 0, xend = 27.2, y = -Inf, yend = -Inf), inherit.aes = FALSE, color="gray20") +
+  geom_segment(data = filter(Alphamodelpar, dur == 2), 
+               aes(x = -0.42, xend = -0.42, y = -5, yend = 10), inherit.aes = FALSE, color="gray20")+
+  geom_segment(data = filter(Alphamodelpar, dur == 1), 
+               aes(x = -0.42, xend = -0.42, y = 0, yend = 20), inherit.aes = FALSE, color="gray20")
+
+final_a <- ggdraw(a) +
+  draw_label("a)", x = 0.175, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("b)", x = 0.175, y = 0.472, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
+  # Rain cloud
+  draw_image(image = icon_rain, x = -0.395, y = 0.44, scale = 0.060)  # Panel A
+  # draw_image(image = icon_rain, x = -0.415, y = -0.015, scale = 0.040)
+ 
+ final_a
+
+# saves
+    # ggsave(paste0(file.path(graph.wd),"/Precip_NtrtEffectCont.png"), plot = last_plot(), width=8, height=6, dpi = res_export, units="in")
+```
+
+Plot: Temperature - live biomass
+```{r}
+b<-
+  Alphamodelpar %>%
+  filter(alpha==3) %>% 
+  ggplot(aes(x=ntrt_qtt,y=`statistics.Mean`))+
+  geom_hline(yintercept = 0, linetype = "dashed", color = "darkgray")+
+  geom_errorbar(aes(ymin=`quantiles.2.5.`, ymax=`quantiles.97.5.`,color=as.factor(cat)),
+                width=0.3,
+                linewidth=0.4,
+             alpha=0.4,
+             show.legend = F)+
+  geom_point(aes(shape = as.factor(exp),color=as.factor(cat)),
+             size=3,
+             alpha=0.5) +
+  geom_line(data=predictions %>% filter(alpha==3), 
+            aes(y=statistics.Mean, x=ntrtpred, colour = as.factor(cat)), 
+            linewidth=1,
+            show.legend = FALSE) +
+  geom_ribbon(data=predictions %>% filter(alpha==3),
+              aes(ymin=quantiles.2.5., ymax=quantiles.97.5., x=ntrtpred,fill = as.factor(exp)), alpha=0.2)+
+  scale_x_continuous(expand = c(0,0),
+                     breaks = c(0.0,1.0,2.0,3.4,5.4,9.5,17.0,27.2))+
+  scale_y_continuous(n.breaks = 7) +
+  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
+  scale_fill_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
+  scale_shape_manual(values = c(19, 17),
+                     labels = c("Intact","Disturbed")) +
+  facet_wrap(~dur, nrow=2, scales = "free_y",
+             labeller = labeller(dur = c("1" = "Temperature: All Years", "2" = "Temperature: No Transient Community")))+
+  xlab(expression(bold("Nutrient addition (g N/m"^2*"/yr)")))+
+  ylab("Effect on live biomass\n(posterior mean ± 95% CIs)")+
+  coord_cartesian(clip = "off",
+                   xlim=c(-0.3,27.2))+
+  theme_regular+ 
+  theme(legend.margin=margin(-4,3,2,1),
+        legend.position = "none", #c(0.10,0.92),
+        legend.text = element_text(size=12),
+        legend.background = element_blank(),
+        legend.title = element_blank(),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.ticks.x = element_blank(),
+        # axis.title.x = element_text(size = 12),
+        strip.text = element_text(face = "bold", size = 11),
+        plot.margin = margin(t = 5, r = 15, b = 0, l = 10)) +
+  guides(shape = guide_legend(override.aes = list(alpha=1,size=4,
+                                                  color=c(pals::cols25(5)[4],pals::cols25(5)[5]))),
+         color = "none",
+         fill = "none")+
+  # geom_segment(data = filter(Alphamodelpar, dur == 2), 
+  #              aes(x = 0, xend = 27.2, y = -Inf, yend = -Inf), inherit.aes = FALSE, color="gray20") +
+  geom_segment(data = filter(Alphamodelpar, dur == 2), 
+               aes(x = -0.42, xend = -0.42, y = -50, yend = 75), inherit.aes = FALSE, color="gray20")+
+  geom_segment(data = filter(Alphamodelpar, dur == 1), 
+               aes(x = -0.42, xend = -0.42, y = -50, yend = 200), inherit.aes = FALSE, color="gray20")
+
+final_b <- ggdraw(b) +
+  draw_label("c)", x = 0.115, y = 0.970, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("d)", x = 0.115, y = 0.472, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
+  # Rain cloud
+  draw_image(image = icon_temp, x = -0.448, y = 0.450, scale = 0.060)  # Panel A
+  # draw_image(image = icon_temp, x = -0.460, y = -0.015, scale = 0.045)
+ 
+ final_b
+
+# saves
+    # ggsave(paste0(file.path(graph.wd),"/Temp_NtrtEffectCont.png"), plot = last_plot(), width=8, height=6, dpi = res_export, units="in")
+```
+
+Creating dataset - dead biomass
+```{r}
+## raw data
+ntrt_qtt <- tibble(ntrt = as.factor(c(1:9)),
+                       ntrt_qtt = c(0.0,1.0,2.0,3.4,5.4,9.5,17.0,27.2,0))
+
+lAlphamodelpar<- parameters_All_litter %>% 
+  filter(grepl("^mu_a_ntrt.star",parameter)) %>% 
+  mutate(alpha = rep(1:4,times=36),
+         ntrt = factor(rep(1:9,times=4, each=4), levels = order_levels),
+         ntrtLong = factor(rep(c("0 + All", "1 + All", "2 + All", "3.4 + All", "5.4 + All", "9.5 + All", "17 + All", "27.2 + All", "0 + None"),times=4, each=4), levels = ntrtLong_levels),
+         filling=ifelse(`quantiles.2.5.`<0&`quantiles.97.5.`<0|                                                              `quantiles.2.5.`>0&`quantiles.97.5.`>0, "other","white"),
+         shape=ifelse(exp==1,21,24),
+         cat = ifelse(exp==1&dur==1, 1, ifelse(exp==2&dur==1, 2, ifelse(exp==1&dur==2, 3,4)))) %>%
+   filter(!(alpha %in% c(1,4))) %>%  #removing intercept and AR
+  left_join(ntrt_qtt)
+
+## predictions ## NOTE: add biomass column here and in a similar code chunk for litter
+lpredictions <- lprecip.pred %>% 
+  filter(grepl("^mu_exp.pred",parameter)) %>% 
+  mutate(exp = rep(1:2, times=28),
+         ntrtpred = rep(c(seq(0,26,1),27.2), each=2)) %>% 
+  bind_rows(ltemp.pred %>% 
+  filter(grepl("^mu_exp.pred",parameter)) %>% 
+  mutate(exp = rep(1:2, times=28),
+         ntrtpred = rep(c(seq(0,26,1),27.2), each=2))) %>% 
+  bind_rows(lprecip.pred2 %>% 
+  filter(grepl("^mu_exp.pred",parameter)) %>% 
+  mutate(exp = rep(1:2, times=28),
+         ntrtpred = rep(c(seq(0,26,1),27.2), each=2))) %>% 
+  bind_rows(ltemp.pred2 %>% 
+  filter(grepl("^mu_exp.pred",parameter)) %>% 
+  mutate(exp = rep(1:2, times=28),
+         ntrtpred = rep(c(seq(0,26,1),27.2), each=2))) %>% 
+  mutate(cat = ifelse(exp==1&dur==1, 1, ifelse(exp==2&dur==1, 2, ifelse(exp==1&dur==2, 3,4))))
+```
+
+Plot: Precipitation - dead biomass
+```{r}
+c<-
+  lAlphamodelpar %>%
+  filter(alpha==2) %>% 
+  ggplot(aes(x=ntrt_qtt,y=`statistics.Mean`))+
+  geom_hline(yintercept = 0, linetype = "dashed", color = "darkgray")+
+  geom_errorbar(aes(ymin=`quantiles.2.5.`, ymax=`quantiles.97.5.`,color=as.factor(cat)),
+                width=0.3,
+                linewidth=0.4,
+             # color = "gray50",
+             alpha=0.4,
+             show.legend = F)+
+  geom_point(aes(shape = as.factor(exp),color=as.factor(cat)),
+             # shape = df_global_ntrt$shape,
+             size=3,
+             # color = "gray50",
+             alpha=0.5) +
+  geom_line(data=lpredictions %>% filter(alpha==2), 
+            aes(y=statistics.Mean, x=ntrtpred, colour = as.factor(cat)), 
+            linewidth=1,
+            show.legend = FALSE) +
+  geom_ribbon(data=lpredictions %>% filter(alpha==2),
+              aes(ymin=quantiles.2.5., ymax=quantiles.97.5., x=ntrtpred,fill = as.factor(cat)), alpha=0.2)+
+  scale_x_continuous(expand = c(0,0),
+                     breaks = c(0,1,2,3.4,5.4,9.5,17,27.2),
+                     labels = c(0,1,2,3.4,5.4,9.5,17,27.2))+
+  # scale_y_continuous(labels = function(y) format(y, nsmall = 1, digits = 1))+
+  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
+  scale_fill_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
+  scale_shape_manual(values = c(19, 17),
+                     labels = c("Intact","Disturbed")) +
+  facet_wrap(~dur, nrow=2, scales = "free_y",
+             labeller = labeller(dur = c("1" = "Precipitation: All Years", "2" = "Precipitation: No Transient Community")))+
+  xlab(expression(bold("Nutrient addition (g N/m"^2*"/yr)")))+
+  ylab("Effect on dead biomass\n(posterior mean ± 95% CIs)")+
+  coord_cartesian(clip = "off",
+                   xlim=c(-0.3,27.2))+
+  theme_regular + 
+  theme(legend.margin=margin(-4,3,2,1),
+        legend.position = "none",
+        legend.text = element_text(size=12),
+        legend.background = element_blank(),
+        legend.title = element_blank(),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size = 10),
+        axis.title.y = element_text(size = 12, face = "bold"),
+        axis.title.x = element_text(size = 12),
+        # axis.title.x = element_blank(),
+        strip.text = element_text(face = "bold", size = 11),
+        plot.margin = margin(t = 5, r = 15, b = 5, l = 5)) +
+  guides(shape = guide_legend(override.aes = list(alpha=1,size=4,
+                                                  color=c(pals::cols25(5)[4],pals::cols25(5)[5]))),
+         color = "none",
+         fill = "none") +
+  geom_segment(data = filter(Alphamodelpar, dur == 2), 
+               aes(x = 0, xend = 27.2, y = -Inf, yend = -Inf), inherit.aes = FALSE, color="gray20") +
+  geom_segment(data = filter(Alphamodelpar, dur == 2), 
+               aes(x = -0.42, xend = -0.42, y = -20, yend = 30), inherit.aes = FALSE, color="gray20")+
+  geom_segment(data = filter(Alphamodelpar, dur == 1), 
+               aes(x = -0.42, xend = -0.42, y = 0, yend = 30), inherit.aes = FALSE, color="gray20")
+
+final_c <- ggdraw(c) +
+  draw_label("e)", x = 0.165, y = 0.970, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("f)", x = 0.165, y = 0.528, size = 13, fontface = "bold", hjust = 0, vjust = 1) 
+  # Rain cloud
+  # draw_image(image = icon_rain, x = -0.419, y = 0.46, scale = 0.040)  # Panel A
+  # draw_image(image = icon_rain, x = -0.415, y = -0.015, scale = 0.040)
+ 
+ final_c
+
+# saves
+    # ggsave(paste0(file.path(graph.wd),"/Precip_NtrtEffectCont.png"), plot = last_plot(), width=8, height=6, dpi = res_export, units="in")
+```
+
+Plot: Temperature - dead biomass
+```{r}
+d<-
+  lAlphamodelpar %>%
+  filter(alpha==3) %>% 
+  ggplot(aes(x=ntrt_qtt,y=`statistics.Mean`))+
+  geom_hline(yintercept = 0, linetype = "dashed", color = "darkgray")+
+  geom_errorbar(aes(ymin=`quantiles.2.5.`, ymax=`quantiles.97.5.`,color=as.factor(cat)),
+                width=0.3,
+                linewidth=0.4,
+             alpha=0.4,
+             show.legend = F)+
+  geom_point(aes(shape = as.factor(exp),color=as.factor(cat)),
+             size=3,
+             alpha=0.5) +
+  geom_line(data=lpredictions %>% filter(alpha==3), 
+            aes(y=statistics.Mean, x=ntrtpred, colour = as.factor(cat)), 
+            linewidth=1,
+            show.legend = FALSE) +
+  geom_ribbon(data=lpredictions %>% filter(alpha==3),
+              aes(ymin=quantiles.2.5., ymax=quantiles.97.5., x=ntrtpred,fill = as.factor(exp)), alpha=0.2)+
+  scale_x_continuous(expand = c(0,0),
+                     breaks = c(0.0,1.0,2.0,3.4,5.4,9.5,17.0,27.2),
+                     labels = c(0,1,2,3.4,5.4,9.5,17,27.2))+
+  scale_y_continuous(n.breaks = 6)+
+  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
+  scale_fill_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
+  scale_shape_manual(values = c(19, 17),
+                     labels = c("Intact","Disturbed")) +
+  facet_wrap(~dur, nrow=2, scales = "free_y",
+             labeller = labeller(dur = c("1" = "Temperature: All Years", "2" = "Temperature: No Transient Community")))+
+  xlab(expression(bold("Nutrient addition (g N/m"^2*"/yr)")))+
+  ylab("Effect on live biomass\n(posterior mean ± 95% CIs)")+
+  coord_cartesian(clip = "off",
+                   xlim=c(-0.3,27.2))+
+  theme_regular+ 
+  theme(legend.margin=margin(-4,3,2,1),
+        legend.position = "none", #c(0.10,0.92),
+        legend.text = element_text(size=12),
+        legend.background = element_blank(),
+        legend.title = element_blank(),
+        axis.text.y = element_text(size = 12),
+        axis.text.x = element_text(size = 10),
+        # axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.title.x = element_text(size = 12),
+        strip.text = element_text(face = "bold", size = 11),
+        plot.margin = margin(t = 5, r = 15, b = 5, l = 5)) +
+  guides(shape = guide_legend(override.aes = list(alpha=1,size=4,
+                                                  color=c(pals::cols25(5)[4],pals::cols25(5)[5]))),
+         color = "none",
+         fill = "none")+
+  geom_segment(data = filter(Alphamodelpar, dur == 2), 
+               aes(x = 0, xend = 27.2, y = -Inf, yend = -Inf), inherit.aes = FALSE, color="gray20") +
+  geom_segment(data = filter(Alphamodelpar, dur == 2), 
+               aes(x = -0.42, xend = -0.42, y = -300, yend = 300), inherit.aes = FALSE, color="gray20")+
+  geom_segment(data = filter(Alphamodelpar, dur == 1), 
+               aes(x = -0.42, xend = -0.42, y = 0, yend = 250), inherit.aes = FALSE, color="gray20")
+
+final_d <- ggdraw(d) +
+  draw_label("g)", x = 0.12, y = 0.973, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("h)", x = 0.12, y = 0.53, size = 13, fontface = "bold", hjust = 0, vjust = 1) 
+  # Rain cloud
+  # draw_image(image = icon_temp, x = -0.460, y = 0.460, scale = 0.045)  # Panel A
+  # draw_image(image = icon_temp, x = -0.460, y = -0.015, scale = 0.045)
+ 
+ final_d
+
+# saves
+    # ggsave(paste0(file.path(graph.wd),"/Temp_NtrtEffectCont.png"), plot = last_plot(), width=8, height=6, dpi = res_export, units="in")
+```
+
+Merge plots
+```{r}
+top_row <- plot_grid(final_a, final_b,
+                         ncol = 2, nrow=1, rel_widths = c(1, 0.94),
+                     align = "h", 
+                     axis = "tb")
+
+bottom_row <- plot_grid(final_c, final_d,
+                         ncol = 2, nrow=1, rel_widths = c(1, 0.95))
+
+full <- plot_grid(top_row, bottom_row, nrow=2, ncol = 1, rel_heights = c(0.95,1))
+full
+
+ggsave(file.path(graph.wd,"Fig1_EnvCoefVSNtrt.png"), plot = last_plot(), width=10, height=8, dpi = res_export, units="in")
+```
+
+- [Main] Standardized Global effects
+```{r}
+Globalmodelpar<- parameters_All %>% 
+  filter(grepl("^mu_a.star\\[\\d+\\]$",parameter)) %>% 
+  mutate(alpha = rep(2:3,times=4),
+         filling=ifelse(`quantiles.2.5.`<0&`quantiles.97.5.`<0|                                                              `quantiles.2.5.`>0&`quantiles.97.5.`>0, "black","white"),
+         shape=ifelse(exp==1&dur==1,21,
+                      ifelse(exp==2&dur==1,24,22))) %>% 
+  mutate(statistics.Mean = ifelse(alpha==1, statistics.Mean*clim.means$Precip_mm, statistics.Mean*clim.means$MaxTemp_C),
+         quantiles.2.5. = ifelse(alpha==1, quantiles.2.5.*clim.means$Precip_mm, quantiles.2.5.*clim.means$MaxTemp_C),
+         quantiles.97.5. = ifelse(alpha==1, quantiles.97.5.*clim.means$Precip_mm, quantiles.97.5.*clim.means$MaxTemp_C))
+
+lGlobalmodelpar<- parameters_All_litter %>% 
+  filter(grepl("^mu_a.star\\[\\d+\\]$",parameter)) %>% 
+  mutate(alpha = rep(2:3,times=4),
+         filling=ifelse(`quantiles.2.5.`<0&`quantiles.97.5.`<0|                                                              `quantiles.2.5.`>0&`quantiles.97.5.`>0, "black","white"),
+         shape=ifelse(exp==1&dur==1,21,
+                      ifelse(exp==2&dur==1,24,22))) %>% 
+  mutate(statistics.Mean = ifelse(alpha==1, statistics.Mean*lclim.means$Precip_mm, statistics.Mean*lclim.means$MaxTemp_C),
+         quantiles.2.5. = ifelse(alpha==1, quantiles.2.5.*lclim.means$Precip_mm, quantiles.2.5.*lclim.means$MaxTemp_C),
+         quantiles.97.5. = ifelse(alpha==1, quantiles.97.5.*lclim.means$Precip_mm, quantiles.97.5.*lclim.means$MaxTemp_C))
+
+Globalmodelpar <- Globalmodelpar %>%  bind_rows(lGlobalmodelpar)
+
+dodge_width <- 0.5
+
+c<-Globalmodelpar %>% 
+  ggplot(aes(x=exp,y=`statistics.Mean`,
+             group=dur
+             ))+
+  geom_hline(yintercept = 0, linetype = "dashed", color = "darkgray")+
+  geom_errorbar(aes(ymin=`quantiles.2.5.`, ymax=`quantiles.97.5.`),
+                width=0.3,
+                linewidth=0.7, 
+                position=position_dodge(width=dodge_width))+
+  geom_point(aes(shape=as.factor(shape),
+                 fill=as.factor(filling)),
+                 size=3,
+             # shape=Globalmodelpar$shape,
+             # fill=Globalmodelpar$filling,
+             position=position_dodge(width=dodge_width)
+             )+
+  scale_shape_manual(values = c(21,22,24),
+                     labels = c("All years - Intact","All years - Disturbed","Without transient\n community")) +
+  scale_fill_manual(values = c("black","white")) +
+  facet_grid(biomass~alpha, 
+             scales = "free_y",
+             labeller = labeller(alpha = c("2" = "Precipitation", "3" = "Temperature"),
+                                 biomass = c("1" = "Live biomass","2" = "Dead biomass")))+
+  ylab("Standardized coefficients\n(posterior mean ± 95% CIs)")+
+  xlab(NULL)+
+ 
+  scale_x_continuous(breaks = c(1,2),
+                     labels = c("Intact","Disturbed")) +
+  coord_cartesian(#ylim = c(-400, 1400), 
+                    xlim=c(0.5,2.5), 
+                  clip = "off") +
+  scale_y_continuous(n.breaks = 8) +
+  geom_segment(data = filter(Globalmodelpar, alpha == "2", biomass==1),
+               aes(x = 0.365, xend = 0.365,
+                   y = -250,
+                   yend = 1250), inherit.aes = FALSE, color="gray20") +
+    geom_segment(data = filter(Globalmodelpar, alpha == "2", biomass==2),
+               aes(x = 0.365, xend = 0.365,
+                   y = -500,
+                   yend = 2500), inherit.aes = FALSE, color="gray20") +
+  theme_facet +
+  theme(legend.position = c(0.25,0.90),
+        legend.title = element_blank(),
+        legend.margin = margin(1,5,1,-5),
+        legend.key.size = unit(0.3, "cm"),
+        legend.text = element_text(size=rel(0.6)),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12),
+        plot.margin = margin(t = 5, r = 5, b = 5, l = 5)) +
+  guides(shape = guide_legend(override.aes = list(alpha=1,size=2,
+                                                  shape=c(19,17,15),
+                                                  color=c("black","black","black"))),
+         fill = "none")
+
+final_c <- ggdraw(c) +
+  draw_label("a)", x = 0.175, y = 0.880, size = 10, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("c)", x = 0.175, y = 0.430, size = 10, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("b)", x = 0.570, y = 0.880, size = 10, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("d)", x = 0.570, y = 0.430, size = 10, fontface = "bold", hjust = 0, vjust = 1)
+  # Rain cloud
+  # draw_image(image = icon_rain, x = -0.24, y = 0.435, scale = 0.025) + # Panel A
+  # draw_image(image = icon_temp, x = 0.12, y = 0.435, scale = 0.070)
+ 
+ final_c
+
+ggsave(file.path(graph.wd,"Fig2_StdGlobalCoefs.png"), plot = last_plot(), width=5, height=3.5, dpi = res_export, units="in")
+```
+
+- [Main] Memory length (cumulative weight)
+Creating dataset - live biomass
+```{r}
+ntrt_database <- tibble(ntrt = factor(1:9, levels = order_levels),
+         ntrtLong = factor(c("0\nAll", "1\nAll", "2\nAll", "3.4\nAll", "5.4\nAll", "9.5\nAll", "17\nAll", "27.2\nAll", "0\nNone"), levels = ntrtLong_levels2)) 
+
+# Create a sequence of thresholds
+thresholds <- seq(0.5, 1, by = 0.01)
+
+# Initialize the dataframe
+WEIGHTMoLength <- WEIGHTMomodelpar %>%
+  group_by(exp, ntrt, variable, dur) %>%
+  arrange(exp, ntrt, variable, month) %>%
+  mutate(cumulative_sum = cumsum(statistics.Mean)) 
+
+# Loop over each threshold and calculate the months_no
+for (threshold in thresholds) {
+  WEIGHTMoLength <- WEIGHTMoLength %>%
+    mutate(!!sym(paste0("months_no_", threshold)) := min(month[cumulative_sum >= threshold], na.rm = TRUE))
+}
+
+# Summarise to get the final result
+WEIGHTMoLength <- WEIGHTMoLength %>%
+  summarise(across(starts_with("months_no_"), ~ min(.x, na.rm = TRUE), .names = "min_{.col}"), .groups = "drop") %>%
+  ungroup() %>%
+  group_by(dur, exp, ntrt, variable) %>% 
+  pivot_longer(cols = starts_with("min_months_no_"),
+               names_to = "length",
+               values_to = "months_no") %>% 
+  mutate(months_no = ifelse(months_no==Inf, 36, months_no)) %>% 
+  # Pivot wider to have separate columns for exp == 1 and exp == 2
+  pivot_wider(names_from = exp, 
+              values_from = "months_no", 
+              names_prefix = "exp_") %>% 
+  # Calculate mem_length
+  mutate(mem_length = exp_1 - exp_2) %>% 
+  left_join(ntrt_database)
+```
+
+Plot side-by-side: Precipitation - live biomass
+```{r}
+a<-
+  WEIGHTMoLength %>%
+  filter(variable==1) %>% 
+  ggplot(aes(y=mem_length,
+             x=ntrtLong,
+             fill=mem_length))+
+  geom_boxplot(alpha = 0.3, outlier.size = 0, size=0.3) + 
+  geom_point(aes(shape=as.factor(variable)),
+             size=2, 
+             alpha = 0.9,
+             position = position_jitterdodge(jitter.height = 0.3, jitter.width = 0.5),
+             stroke = 0.3) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_fill_gradient2(low = pals::cols25(5)[5], # Negative values
+                       mid = "white",           # Neutral (zero)
+                       high = pals::cols25(5)[4], # Positive values
+                       midpoint = 0) +          # Center around zero
+  scale_shape_manual(values =c(21,24))+
+  scale_y_continuous(breaks = c(8,4,0,-4,-8),
+                     labels = function(y) format(y, nsmall = 1, digits = 1)) +
+  coord_cartesian(ylim = c(-8,8), 
+                  xlim = c(1,9),
+                  clip = "off")+
+  facet_grid(~dur, labeller = labeller(dur = c("1" = "All Years", "2" = "No Transient Community"))) +
+  ylab("Difference in months when\nmemory length is >50%")+
+  xlab("")+  
+  geom_segment(data = filter(WEIGHTMoLength, dur == 1), 
+               aes(x = 0.27, xend = 0.27, y = -8, yend = 8), inherit.aes = FALSE, color="gray20") +
+  annotate("segment", y=-Inf, yend=-Inf, x=1, xend=9, color = "gray20") +
+  annotate("segment", y=.5, yend=8, x=10, xend=10, color = "gray20") +
+  annotate("segment", y=-.5, yend=-8, x=10, xend=10, color = "gray20") +
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = 8, yend = 8), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = 0.5, yend = 0.5), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = -0.5, yend = -0.5), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = -8, yend = -8), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  annotate("text", x = 11.75, y = 8.75, label = "Longer\nMemory\nin:", color = "black", fontface = "bold", size = 3.5)+
+  annotate("text", x = 11.75, y = 4.5, label = "\nINTACT\nplots", color = "gray30", fontface = "bold", size = 3.3)+
+  annotate("text", x = 11.75, y = -4.5, label = "\nDISTURBED\nplots", color = "gray30", fontface = "bold", size = 3.3)+
+  theme_regular
+
+ final_a <- ggdraw(a) +
+   draw_label("a)", x = 0.11, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1)+
+   draw_label("b)", x = 0.487, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1)+
+  # Rain cloud
+  draw_image(image = icon_rain, x = -0.43, y = 0.45, scale = 0.050) # Panel A
+ 
+ final_a
+
+  # ggsave(file.path(graph.wd,"Precip_DiffMemoryLength_SideBySide.png"), plot = last_plot(), width=7, height=4, dpi = res_export, units="in")
+
+```
+
+Plot side-by-side: Temperature - live biomass
+```{r}
+b<-
+  WEIGHTMoLength %>%
+  filter(variable==2) %>% 
+  ggplot(aes(y=mem_length,
+             x=ntrtLong,
+             fill=mem_length))+
+  geom_boxplot(alpha = 0.3, outlier.size = 0, size=0.3) + 
+  geom_point(aes(shape=as.factor(variable)),
+             size=2, 
+             alpha = 0.9,
+             position = position_jitterdodge(jitter.height = 0.3, jitter.width = 0.5),
+             stroke = 0.3) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_fill_gradient2(low = pals::cols25(5)[5], # Negative values
+                       mid = "white",           # Neutral (zero)
+                       high = pals::cols25(5)[4], # Positive values
+                       midpoint = 0) +          # Center around zero
+  scale_shape_manual(values =c(21,24))+
+  scale_y_continuous(breaks = c(8,4,0,-4,-8),
+                     labels = function(y) format(y, nsmall = 1, digits = 1)) +
+  coord_cartesian(ylim = c(-10,8), 
+                  xlim = c(1,9),
+                  clip = "off")+
+  facet_grid(~dur, labeller = labeller(dur = c("1" = "All Years", "2" = "No Transient Community"))) +
+  ylab("Difference in months when\nmemory length is >50%")+
+  xlab("")+  
+  geom_segment(data = filter(WEIGHTMoLength, dur == 1), 
+               aes(x = 0.27, xend = 0.27, y = -10, yend = 8), inherit.aes = FALSE, color="gray20") +
+  annotate("segment", y=-Inf, yend=-Inf, x=1, xend=9, color = "gray20") +
+  annotate("segment", y=.5, yend=8, x=10, xend=10, color = "gray20") +
+  annotate("segment", y=-.5, yend=-10, x=10, xend=10, color = "gray20") +
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = 8, yend = 8), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = 0.5, yend = 0.5), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = -0.5, yend = -0.5), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = -10, yend = -10), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  annotate("text", x = 11.75, y = 8.75, label = "Longer\nMemory\nin:", color = "black", fontface = "bold", size = 3.5)+
+  annotate("text", x = 11.75, y = 4.5, label = "\nINTACT\nplots", color = "gray30", fontface = "bold", size = 3.3)+
+  annotate("text", x = 11.75, y = -5.5, label = "\nDISTURBED\nplots", color = "gray30", fontface = "bold", size = 3.3)+
+  theme_regular
+
+ final_b <- ggdraw(b) +
+   draw_label("c)", x = 0.11, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1)+
+   draw_label("d)", x = 0.487, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
+  # Rain cloud
+  draw_image(image = icon_temp, x = -0.43, y = 0.45, scale = 0.080) # Panel A
+ 
+ final_b
+
+  # ggsave(file.path(graph.wd,"Temp_DiffMemoryLength_SideBySide.png"), plot = last_plot(), width=7, height=4, dpi = res_export, units="in")
+
+```
+
+Merge side-by-side plots - live biomass
+```{r}
+left_column <- plot_grid(final_a, final_b, ncol = 1)
+left_column
+ggsave(file.path(graph.wd,"Fig4_DiffMemoryLength_LiveBiomass.png"), plot = last_plot(), width=7, height=8, dpi = res_export, units="in")
+```
+
+Creating dataset - dead biomass
+```{r}
+ntrt_database <- tibble(ntrt = factor(1:9, levels = order_levels),
+         ntrtLong = factor(c("0\nAll", "1\nAll", "2\nAll", "3.4\nAll", "5.4\nAll", "9.5\nAll", "17\nAll", "27.2\nAll", "0\nNone"), levels = ntrtLong_levels2)) 
+
+# Create a sequence of thresholds
+thresholds <- seq(0.5, 1, by = 0.01)
+
+# Initialize the dataframe
+WEIGHTMoLength <- lWEIGHTMomodelpar %>%
+  select(-biomass) %>% 
+  group_by(exp, ntrt, variable, dur) %>%
+  arrange(exp, ntrt, variable, month) %>%
+  mutate(cumulative_sum = cumsum(statistics.Mean)) 
+
+# Loop over each threshold and calculate the months_no
+for (threshold in thresholds) {
+  WEIGHTMoLength <- WEIGHTMoLength %>%
+    mutate(!!sym(paste0("months_no_", threshold)) := min(month[cumulative_sum >= threshold], na.rm = TRUE))
+}
+
+# Summarise to get the final result
+WEIGHTMoLength <- WEIGHTMoLength %>%
+  summarise(across(starts_with("months_no_"), ~ min(.x, na.rm = TRUE), .names = "min_{.col}"), .groups = "drop") %>%
+  ungroup() %>%
+  group_by(dur, exp, ntrt, variable) %>% 
+  pivot_longer(cols = starts_with("min_months_no_"),
+               names_to = "length",
+               values_to = "months_no") %>% 
+  mutate(months_no = ifelse(months_no==Inf, 36, months_no)) %>% 
+  # Pivot wider to have separate columns for exp == 1 and exp == 2
+  pivot_wider(names_from = exp, 
+              values_from = "months_no", 
+              names_prefix = "exp_") %>% 
+  # Calculate mem_length
+  mutate(mem_length = exp_1 - exp_2) %>% 
+  left_join(ntrt_database)
+```
+
+Plot side-by-side: Precipitation - dead biomass
+```{r}
+a<-
+  WEIGHTMoLength %>%
+  filter(variable==1) %>% 
+  ggplot(aes(y=mem_length,
+             x=ntrtLong,
+             fill=mem_length))+
+  geom_boxplot(alpha = 0.3, outlier.size = 0, size=0.3) + 
+  geom_point(aes(shape=as.factor(variable)),
+             size=2, 
+             alpha = 0.9,
+             position = position_jitterdodge(jitter.height = 0.3, jitter.width = 0.5),
+             stroke = 0.3) +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_fill_gradient2(low = pals::cols25(5)[5], # Negative values
+                       mid = "white",           # Neutral (zero)
+                       high = pals::cols25(5)[4], # Positive values
+                       midpoint = 0) +          # Center around zero
+  scale_shape_manual(values =c(21,24))+
+  scale_y_continuous(breaks = c(12,8,4,0,-4),
+                     labels = function(y) format(y, nsmall = 1, digits = 1)) +
+  coord_cartesian(ylim = c(-4,12), 
+                  xlim = c(1,9),
+                  clip = "off")+
+  facet_grid(~dur, labeller = labeller(dur = c("1" = "All Years", "2" = "No Transient Community"))) +
+  ylab("Difference in months when\nmemory length is >50%")+
+  xlab("")+  
+  geom_segment(data = filter(WEIGHTMoLength, dur == 1), 
+               aes(x = 0.27, xend = 0.27, y = -4, yend = 12), inherit.aes = FALSE, color="gray20") +
+  annotate("segment", y=-Inf, yend=-Inf, x=1, xend=9, color = "gray20") +
+  annotate("segment", y=.5, yend=12, x=10, xend=10, color = "gray20") +
+  annotate("segment", y=-.5, yend=-4, x=10, xend=10, color = "gray20") +
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = 12, yend = 12), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = 0.5, yend = 0.5), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = -0.5, yend = -0.5), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = -4, yend = -4), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  annotate("text", x = 11.75, y = 12.75, label = "Longer\nMemory\nin:", color = "black", fontface = "bold", size = 3.5)+
+  annotate("text", x = 11.75, y = 6.5, label = "\nINTACT\nplots", color = "gray30", fontface = "bold", size = 3.3)+
+  annotate("text", x = 11.75, y = -2.0, label = "\nDISTURBED\nplots", color = "gray30", fontface = "bold", size = 3.3)+
+  theme_regular
+
+ final_a <- ggdraw(a) +
+   draw_label("a)", x = 0.11, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1)+
+   draw_label("b)", x = 0.487, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1)+
+  # Rain cloud
+  draw_image(image = icon_rain, x = -0.43, y = 0.45, scale = 0.050) # Panel A
+ 
+ final_a
+
+  # ggsave(file.path(graph.wd,"Precip_DiffMemoryLength_SideBySide.png"), plot = last_plot(), width=7, height=4, dpi = res_export, units="in")
+
+```
+
+Plot side-by-side: Temperature - dead biomass
+```{r}
+b<-
+  WEIGHTMoLength %>%
+  filter(variable==2) %>% 
+  ggplot(aes(y=mem_length,
+             x=ntrtLong,
+             fill=mem_length))+
+  geom_boxplot(alpha = 0.3, outlier.size = 0, size=0.3) + 
+  geom_point(aes(shape=as.factor(variable)),
+             size=2, 
+             alpha = 0.9,
+             position = position_jitterdodge(jitter.height = 0.3, jitter.width = 0.5),
+             stroke = 0.3) +
+  geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
+  scale_fill_gradient2(low = pals::cols25(5)[5], # Negative values
+                       mid = "white",           # Neutral (zero)
+                       high = pals::cols25(5)[4], # Positive values
+                       midpoint = 0) +          # Center around zero
+  scale_shape_manual(values =c(21,24))+
+  scale_y_continuous(breaks = c(8,4,0,-4,-8,-12,-16,-20),
+                     labels = c(8,4,0,-4,-8,-12,-16,-20)) +
+  coord_cartesian(ylim = c(-20,8), 
+                  xlim = c(1,9),
+                  clip = "off")+
+  facet_grid(~dur, labeller = labeller(dur = c("1" = "All Years", "2" = "No Transient Community"))) +
+  ylab("Difference in months when\nmemory length is >50%")+
+  xlab("")+  
+  geom_segment(data = filter(WEIGHTMoLength, dur == 1), 
+               aes(x = 0.27, xend = 0.27, y = -20, yend = 8), inherit.aes = FALSE, color="gray20") +
+  annotate("segment", y=-Inf, yend=-Inf, x=1, xend=9, color = "gray20") +
+  annotate("segment", y=.5, yend=8, x=10, xend=10, color = "gray20") +
+  annotate("segment", y=-.5, yend=-20, x=10, xend=10, color = "gray20") +
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = 8, yend = 8), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = 0.5, yend = 0.5), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = -0.5, yend = -0.5), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  geom_segment(data = filter(WEIGHTMoLength, dur == 2), 
+               aes(x = 9.7, xend = 10, y = -20, yend = -20), inherit.aes = FALSE, color="gray20", linewidth=0.3)+
+  annotate("text", x = 11.75, y = 8.75, label = "Longer\nMemory\nin:", color = "black", fontface = "bold", size = 3.5)+
+  annotate("text", x = 11.75, y = 4.5, label = "\nINTACT\nplots", color = "gray30", fontface = "bold", size = 3.3)+
+  annotate("text", x = 11.75, y = -9.5, label = "\nDISTURBED\nplots", color = "gray30", fontface = "bold", size = 3.3)+
+  theme_regular
+
+ final_b <- ggdraw(b) +
+   draw_label("c)", x = 0.105, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1)+
+   draw_label("d)", x = 0.485, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
+  # Rain cloud
+  draw_image(image = icon_temp, x = -0.43, y = 0.45, scale = 0.080) # Panel A
+ 
+ final_b
+
+  # ggsave(file.path(graph.wd,"Temp_DiffMemoryLength_SideBySide.png"), plot = last_plot(), width=7, height=4, dpi = res_export, units="in")
+
+```
+
+Merge side-by-side plots - dead biomass
+```{r}
+left_column <- plot_grid(final_a, final_b, ncol = 1)
+left_column
+ggsave(file.path(graph.wd,"Fig6_DiffMemoryLength_DeadBiomass.png"), plot = last_plot(), width=7, height=8, dpi = res_export, units="in")
+```
