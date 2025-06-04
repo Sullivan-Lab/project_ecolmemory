@@ -196,7 +196,7 @@ clim.means_Dist <- read_csv(file.path(workingdir,"data/L1/DataModel_CoarseEnv_Fi
          dur = 1)
 
 ## Minus5y
-clim.means_NoDist2 <- read_csv(file.path(workingdir,"data/L1/DataModel_CoarseEnv_FieldsAB/climateMeans/clim.means_NoDist_Litter_FieldsAB_Minus5y_CoarseEnv.csv")) %>% 
+clim.means_NoDist2 <- read_csv(file.path(workingdir,"data/L1/DataModel_CoarseEnv_FieldsAB/climateMeans/clim.means_NDist_Litter_FieldsAB_Minus5y_CoarseEnv.csv")) %>% 
     summarise(Precip_mm = sum(Precip_mm),
               MaxTemp_C = mean(MaxTemp_C)) %>% 
   mutate(exp = 1,
