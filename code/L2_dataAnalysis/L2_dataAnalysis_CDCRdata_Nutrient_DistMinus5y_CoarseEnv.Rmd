@@ -33,7 +33,7 @@ library(pals)
 Paths to import files, and export outputs
 ```{r}
 workingdir <- getwd()
-datain <- file.path(workingdir, "data/L1")
+datain <- file.path(workingdir, "data/L1/DataModel_CoarseEnv")
 graph.wd <- file.path(workingdir, "figures")
 parameters.wd <- file.path(workingdir, "parameters/CoarseEnv")
 ```
