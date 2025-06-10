@@ -1,0 +1,345 @@
+---
+title: "L0_Weather_dataWrangling"
+author: "laís petri"
+date: "2024-01-24"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r package and directory, echo=FALSE}
+#import excel sheet
+# require(readxl)
+#data wrangling and plot
+require(tidyverse)
+## color blind discrete colors
+require(pals)
+```
+
+Paths to import files, and export outputs
+```{r}
+workingdir <- getwd()
+datain <- file.path(workingdir, "data/L0")
+dataout <- file.path(workingdir, "data/L1")
+graph.wd <- file.path(workingdir, "figures")
+```
+
+Defining colors
+```{r}
+fieldcolor<-as.vector(alphabet(3))
+# sitecolor2<-c("#F0A0FF","#cce3f8")
+# mocolor<-as.vector(alphabet2(3))
+# mocolor2 <- c("#DD9EFE","#AA0DFE","#ADCDFE","#3283FE","#CEC19E","#85660D")
+```
+
+Defining graph size font
+```{r}
+graph.size <- 12
+title.size <- 14
+```
+
+## upload data
+```{r}
+weatherData <- as_tibble(read_csv(file.path(datain,'e080_Daily climate summary.csv')))
+glimpse(weatherData) # daily values of Min and Max Temp, and Precip
+
+pdsi <- as_tibble(read_csv(file.path(datain,'PDSI/gridMET/monthly_pdsi.csv')))
+glimpse(pdsi)
+```
+
+## data exploration
+```{r}
+weatherData %>% 
+  select(Year,Month) %>% distinct() %>% 
+  ungroup() %>% 
+  group_by(Year) %>%
+  summarise(MonthCount = n_distinct(Month)) %>%
+  ungroup() %>% filter(MonthCount!=12)
+
+#range of years for PlantComm data: 1982 2021
+
+# therefore, the only missing year is 2007, I can exclude 1962 and 2023 to not give trouble when analyzing data
+# but, now that I am using data until 2021, I will fill in the missing month with the average values for month 2 across the entire sequence (1963-2022). I am doing this because I couldn't figure out how to fill in missing data given the structure in which the ppt and temp are read by the model 
+
+weatherData <- weatherData %>% 
+  filter(Year > 1962,
+         Year < 2023)
+```
+
+## calculating monthly averages
+```{r}
+#for calculations, following https://www.nrcs.usda.gov/wps/portal/wcc/home/climateSupport/wetlandsClimateTables/exampleAndDefinitions
+
+weatherDataMonth <- weatherData %>% 
+  group_by(Year, Month) %>% 
+  summarise(MaxTemp_C=mean(MaxTemp_C),
+            MinTemp_C=mean(MinTemp_C),
+            Precip_mm=sum(Precip_mm)) %>% 
+  ungroup()
+
+Month2 <- weatherDataMonth %>% 
+  group_by(Month) %>% 
+  summarise(MaxTemp_C=mean(MaxTemp_C),
+            MinTemp_C=mean(MinTemp_C),
+            Precip_mm=mean(Precip_mm)) %>% 
+  ungroup() %>% 
+  filter(Month==2) %>% 
+  as.vector
+
+## creating row with missing data
+dataframe <- c(Year = 2007,
+               Month = 2, 
+               MaxTemp_C = Month2[["MaxTemp_C"]],
+               MinTemp_C = Month2[["MinTemp_C"]],
+               Precip_mm = Month2[["Precip_mm"]])
+
+## adding missing data
+weatherDataMonth <- weatherDataMonth %>% 
+  rbind(dataframe) 
+
+#checking whether my trick worked
+weatherDataMonth %>% 
+  select(Year,Month) %>% distinct() %>% 
+  ungroup() %>% 
+  group_by(Year) %>%
+  summarise(MonthCount = n_distinct(Month)) %>%
+  ungroup() %>% filter(MonthCount!=12)
+```
+
+## PDSI
+```{r}
+pdsi <- pdsi %>% 
+  mutate(Year = year(YearMonth),
+         Month = month(YearMonth)) %>% 
+  select(-YearMonth) %>% 
+  rename(PDSI = Monthly_PDSI)
+
+weatherDataMonth <- weatherDataMonth %>% left_join(pdsi) 
+
+glimpse(weatherDataMonth)
+```
+
+
+### exporting file
+```{r eval=FALSE, include=FALSE}
+#exporting data
+weatherDataMonth %>% 
+  glimpse() %>% 
+  write_csv(file.path(dataout,"da_weather_020625.csv"))
+
+```
+
+## data exploration
+```{r}
+# not the best graphs, but we can have an idea that there is variability, which is good!
+weatherDataMonth %>% 
+ggplot(aes(y=Precip_mm,x=Month, color=as.factor(Year)))+
+  geom_line()+
+  geom_point(size=5,alpha=1)+
+  # scale_color_manual(values=sitecolor, name="sites")+
+  scale_x_continuous(breaks = seq(min(weatherData$Month), max(weatherData$Month), by = 1)) +
+  xlab("Month")+
+  ylab("Total yearly precipitation (mm)")+
+  # facet_wrap(~Year)+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = "bottom",
+        legend.text=element_text(size=12),
+        legend.title=element_text(size=13),
+        legend.margin=margin(0,0,0,0),
+        legend.box.margin=margin(-5,-5,-5,-5),
+        axis.text = element_text(size = graph.size),
+        # axis.text.x = element_text(size = graph.size-5),
+        axis.title = element_text(size = title.size),
+        # axis.title.x = element_blank(),
+        strip.text.y = element_text(size = graph.size))+ 
+    guides(colour = guide_legend(nrow = 1))
+
+weatherDataMonth %>% 
+ggplot(aes(y=MinTemp_C,x=Month, color=as.factor(Year)))+
+  geom_line()+
+  geom_point(size=5,alpha=1)+
+  # scale_color_manual(values=sitecolor, name="sites")+
+  scale_x_continuous(breaks = seq(min(weatherData$Month), max(weatherData$Month), by = 1)) +
+  xlab("Month")+
+  ylab("Average min monthly temperature (C)")+
+  # facet_wrap(~Year)+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = "bottom",
+        legend.text=element_text(size=12),
+        legend.title=element_text(size=13),
+        legend.margin=margin(0,0,0,0),
+        legend.box.margin=margin(-5,-5,-5,-5),
+        axis.text = element_text(size = graph.size),
+        # axis.text.x = element_text(size = graph.size-5),
+        axis.title = element_text(size = title.size),
+        # axis.title.x = element_blank(),
+        strip.text.y = element_text(size = graph.size))+ 
+    guides(colour = guide_legend(nrow = 1))
+
+weatherDataMonth %>% 
+ggplot(aes(y=MaxTemp_C,x=Month, color=as.factor(Year)))+
+  geom_line()+
+  geom_point(size=5,alpha=1)+
+  # scale_color_manual(values=sitecolor, name="sites")+
+  scale_x_continuous(breaks = seq(min(weatherData$Month), max(weatherData$Month), by = 1)) +
+  xlab("Month")+
+  ylab("Average max monthly temperature (C)")+
+  # facet_wrap(~Year)+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = "bottom",
+        legend.text=element_text(size=12),
+        legend.title=element_text(size=13),
+        legend.margin=margin(0,0,0,0),
+        legend.box.margin=margin(-5,-5,-5,-5),
+        axis.text = element_text(size = graph.size),
+        # axis.text.x = element_text(size = graph.size-5),
+        axis.title = element_text(size = title.size),
+        # axis.title.x = element_blank(),
+        strip.text.y = element_text(size = graph.size))+ 
+    guides(colour = guide_legend(nrow = 1))
+
+
+weatherDataMonth %>% 
+  filter(!is.na(Monthly_PDSI)) %>% 
+ggplot(aes(y=Monthly_PDSI,x=Month, color=as.factor(Year)))+
+  geom_line()+
+  geom_point(size=4,alpha=0.5)+
+  # scale_color_manual(values=sitecolor, name="sites")+
+  scale_x_continuous(breaks = seq(min(weatherData$Month), max(weatherData$Month), by = 1)) +
+  xlab("Month")+
+  ylab("PDSI")+
+  facet_wrap(~Year)+
+  theme_bw()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        legend.position = "bottom",
+        legend.text=element_text(size=12),
+        legend.title=element_text(size=13),
+        legend.margin=margin(0,0,0,0),
+        legend.box.margin=margin(-5,-5,-5,-5),
+        axis.text = element_text(size = graph.size),
+        # axis.text.x = element_text(size = graph.size-5),
+        axis.title = element_text(size = title.size),
+        # axis.title.x = element_blank(),
+        strip.text.y = element_text(size = graph.size))+ 
+    guides(colour = guide_legend(nrow = 1))
+
+# Precip ~ PDSI
+correlation_value <- cor(weatherDataMonth$Precip_mm, weatherDataMonth$PDSI, use = "complete.obs")
+
+weatherDataMonth %>%
+  filter(!is.na(PDSI)) %>% 
+  ggplot(aes(y = Precip_mm, x = PDSI)) +
+  annotate("text", x = Inf, y = Inf, label = sprintf("cor: %.4f", correlation_value), 
+           hjust = 4, vjust = 1.5, size = 6) +
+  geom_point(shape=19,size=5,alpha=0.5) +
+  ylab("Precipitation (mm)")+
+  xlab("PDSI")+ 
+  theme_classic()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text.y = element_text(size = 25),
+        axis.text.x = element_text(size = 25),
+        axis.title = element_text(size = 25),
+        axis.line = element_line(colour = "black"))
+
+#Max temp
+correlation_value <- cor(weatherDataMonth$MaxTemp_C, weatherDataMonth$PDSI, use = "complete.obs")
+
+weatherDataMonth %>%
+  filter(!is.na(PDSI)) %>% 
+  ggplot(aes(y = MaxTemp_C, x = PDSI)) +
+  annotate("text", x = Inf, y = Inf, label = sprintf("cor: %.4f", correlation_value), 
+           hjust = 4, vjust = 1.5, size = 6) +
+  geom_point(shape=19,size=5,alpha=0.5) +
+  ylab("Maximum Temperature")+
+  xlab("PDSI")+ 
+  theme_classic()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text.y = element_text(size = 25),
+        axis.text.x = element_text(size = 25),
+        axis.title = element_text(size = 25),
+        axis.line = element_line(colour = "black"))
+
+# ggsave(paste0(file.path(graph.wd,"MaxAvgTemp_.png")), plot = last_plot(), width=7, height=5, dpi = 300, units="in")
+```
+
+
+# addition to calculate yearly averages across the most up-to-date chronology
+## upload data
+```{r}
+weatherData <- as_tibble(read_csv(file.path(datain,'e080_Daily climate summary.csv')))
+glimpse(weatherData) # daily values of Min and Max Temp, and Precip
+```
+
+## get summaries
+```{r}
+#monthly means
+weatherDataMonth <- weatherData %>% 
+  mutate(Date = as.Date(Date, "%m/%d/%Y"),
+         Month = month(Date), 
+         Year = year(Date)) %>% 
+  group_by(Year, Month) %>% 
+  summarise(MaxTemp_C=mean(MaxTemp_C),
+            MinTemp_C=mean(MinTemp_C),
+            Precip_mm=sum(Precip_mm)) %>% 
+  ungroup() %>% 
+  mutate(AvgTemp_C=(MaxTemp_C+MinTemp_C)/2) 
+
+#yearly means
+weatherDataYear <- weatherDataMonth %>% 
+  group_by(Year) %>% 
+  summarise(AvgTemp_C=mean(AvgTemp_C),
+            Precip_mm=sum(Precip_mm)) %>% 
+  ungroup()
+
+#chronology mean
+weatherDataYear %>% 
+  summarise(AvgTemp_C_SD=sd(AvgTemp_C),
+            AvgTemp_C=mean(AvgTemp_C),
+            Precip_mm_SD=sd(Precip_mm),
+            Precip_mm=mean(Precip_mm))
+
+# highest and lowest temp (Jan and July)
+weatherDataMonth %>% 
+  group_by(Year, Month) %>% 
+  summarise(AvgTemp_C=mean(AvgTemp_C)) %>% 
+  group_by(Month) %>% 
+  summarise(AvgTemp_C_SD=sd(AvgTemp_C),
+            AvgTemp_C=mean(AvgTemp_C))
+```
+
+## plot Max temp ~ Mean temp
+```{r}
+correlation_value <- cor(weatherDataMonth$MaxTemp_C, weatherDataMonth$AvgTemp_C)
+
+weatherDataMonth %>% 
+  filter(Year < 2005) %>% 
+ggplot(aes(y = MaxTemp_C, x = AvgTemp_C)) +
+  annotate("text", x = Inf, y = Inf, label = sprintf("cor: %.4f", correlation_value), 
+           hjust = 4, vjust = 1.5, size = 6) +
+  geom_point(shape=19,size=5,alpha=0.5) +
+  ylab("Maximum temperature")+
+  xlab("Average temperature")+ 
+  theme_classic()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text.y = element_text(size = 25),
+        axis.text.x = element_text(size = 25),
+        axis.title = element_text(size = 25),
+        axis.line = element_line(colour = "black"))
+
+ggsave(paste0(file.path(graph.wd,"MaxAvgTemp_.png")), plot = last_plot(), width=7, height=5, dpi = 300, units="in")
+```
+
