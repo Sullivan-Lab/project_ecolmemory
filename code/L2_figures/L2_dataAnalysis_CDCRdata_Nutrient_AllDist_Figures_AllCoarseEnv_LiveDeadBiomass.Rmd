@@ -459,7 +459,8 @@ final_a <- ggdraw(a) +
   draw_label("a)", x = 0.053, y = 0.986, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
   draw_label("b)", x = 0.053, y = 0.746, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
   draw_label("c)", x = 0.053, y = 0.506, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
-  draw_label("d)", x = 0.053, y = 0.266, size = 15, fontface = "bold", hjust = 0, vjust = 1)
+  draw_label("d)", x = 0.053, y = 0.266, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("*", x = 0.466, y = 0.700, size = 22, fontface = "bold", hjust = 0, vjust = 1)
 final_a
 
 # saves
@@ -468,7 +469,7 @@ final_a
 }
 ```
 
-- [SI] Cumulative weights
+- [REMOVE ASSOCIATED CODE IF IT ISN'T INCLUDED IN THE PAPER] [SI] Cumulative weights
 Creating dataset - live biomass
 ```{r}
 cumulativeWeight <- WEIGHTMomodelpar %>%
@@ -841,7 +842,8 @@ final_a <- ggdraw(a) +
   draw_label("a)", x = 0.1, y = 0.984, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
   draw_label("b)", x = 0.1, y = 0.752, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
   draw_label("c)", x = 0.1, y = 0.521, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
-  draw_label("d)", x = 0.1, y = 0.290, size = 14, fontface = "bold", hjust = 0, vjust = 1)
+  draw_label("d)", x = 0.1, y = 0.290, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("*", x = 0.53, y = 0.718, size = 18, fontface = "bold", hjust = 0, vjust = 1)
 final_a
 
 # saves
@@ -900,7 +902,8 @@ final_b <- ggdraw(b) +
   draw_label("e)", x = 0.1, y = 0.984, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
   draw_label("f)", x = 0.1, y = 0.752, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
   draw_label("g)", x = 0.1, y = 0.523, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
-  draw_label("h)", x = 0.1, y = 0.288, size = 14, fontface = "bold", hjust = 0, vjust = 1)
+  draw_label("h)", x = 0.1, y = 0.288, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("*", x = 0.53, y = 0.710, size = 18, fontface = "bold", hjust = 0, vjust = 1)
 final_b
 
 # saves
@@ -992,7 +995,8 @@ final_a <- ggdraw(a) +
   draw_label("a)", x = 0.1, y = 0.984, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
   draw_label("b)", x = 0.1, y = 0.752, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
   draw_label("c)", x = 0.1, y = 0.521, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
-  draw_label("d)", x = 0.1, y = 0.290, size = 14, fontface = "bold", hjust = 0, vjust = 1)
+  draw_label("d)", x = 0.1, y = 0.290, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("*", x = 0.53, y = 0.710, size = 18, fontface = "bold", hjust = 0, vjust = 1)
 final_a
 
 # saves
@@ -1051,7 +1055,8 @@ final_b <- ggdraw(b) +
   draw_label("e)", x = 0.1, y = 0.984, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
   draw_label("f)", x = 0.1, y = 0.752, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
   draw_label("g)", x = 0.1, y = 0.523, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
-  draw_label("h)", x = 0.1, y = 0.288, size = 14, fontface = "bold", hjust = 0, vjust = 1)
+  draw_label("h)", x = 0.1, y = 0.288, size = 14, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("*", x = 0.53, y = 0.710, size = 18, fontface = "bold", hjust = 0, vjust = 1)
 final_b
 
 # saves
