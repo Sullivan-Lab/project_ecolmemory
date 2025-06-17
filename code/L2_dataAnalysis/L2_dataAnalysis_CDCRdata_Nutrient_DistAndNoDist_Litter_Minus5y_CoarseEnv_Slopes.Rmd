@@ -245,7 +245,7 @@ ggplot(data = predModel, aes(y = Metric, x = Mean_pred)) +
         axis.title = element_text(size = 25),
         axis.line = element_line(colour = "black"))
 
-ggsave(paste0(file.path(graph.wd,paste(c(expName, "_ModelFit_BIOMASS_.png"), collapse=""))), plot = last_plot(), width=7, height=5, dpi = 300, units="in")
+ggsave(paste0(file.path(graph.wd,paste(c("CoarseEnv_Minus5y_Litter_",expName, "_ModelFit_BIOMASS_.png"), collapse=""))), plot = last_plot(), width=7, height=5, dpi = 300, units="in")
 
 # Plot: residuals vs predicted to evaluate model
 Metric_pred <- Stats %>% filter(grepl("^meanY",parameter)) %>% select(statistics.Mean)
@@ -268,7 +268,7 @@ ggplot(data = predModel, aes(y = Residuals, x = Metric_pred)) +
         axis.title = element_text(size = 25),
         axis.line = element_line(colour = "black"))
 
-ggsave(paste0(file.path(graph.wd,paste(c(expName, "_ModelResiduals_.png"), collapse=""))), plot = last_plot(), width=7, height=5, dpi = 300, units="in")
+ggsave(paste0(file.path(graph.wd,paste(c("CoarseEnv_Minus5y_Litter_",expName, "_ModelResiduals_.png"), collapse=""))), plot = last_plot(), width=7, height=5, dpi = 300, units="in")
 
 ## Outputs
 # saving model output
