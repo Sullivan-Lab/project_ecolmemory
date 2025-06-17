@@ -1175,8 +1175,8 @@ final_a <- ggdraw(a) +
   draw_label("a)", x = 0.175, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
   draw_label("b)", x = 0.175, y = 0.472, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
   # Rain cloud
-  draw_image(image = icon_rain, x = -0.395, y = 0.44, scale = 0.060)  # Panel A
-  # draw_image(image = icon_rain, x = -0.415, y = -0.015, scale = 0.040)
+  draw_image(image = icon_rain, x = -0.395, y = 0.44, scale = 0.060) +  # Panel A
+  draw_label("*", x = 0.258, y = 0.710, size = 18, fontface = "bold", hjust = 0, vjust = 1, color = "#ffba76")
  
  final_a
 
@@ -1247,9 +1247,8 @@ final_b <- ggdraw(b) +
   draw_label("c)", x = 0.115, y = 0.970, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
   draw_label("d)", x = 0.115, y = 0.472, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
   # Rain cloud
-  draw_image(image = icon_temp, x = -0.448, y = 0.450, scale = 0.060)  # Panel A
-  # draw_image(image = icon_temp, x = -0.460, y = -0.015, scale = 0.045)
- 
+  draw_image(image = icon_temp, x = -0.448, y = 0.450, scale = 0.060) +  # Panel A
+  draw_label("*", x = 0.203, y = 0.720, size = 18, fontface = "bold", hjust = 0, vjust = 1, color = "#ffba76") 
  final_b
 
 # saves
@@ -1639,7 +1638,8 @@ a<-
    draw_label("a)", x = 0.11, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1)+
    draw_label("b)", x = 0.487, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1)+
   # Rain cloud
-  draw_image(image = icon_rain, x = -0.43, y = 0.45, scale = 0.050) # Panel A
+  draw_image(image = icon_rain, x = -0.43, y = 0.45, scale = 0.050) +  # Panel A
+  draw_label("*", x = 0.280, y = 0.380, size = 18, fontface = "bold", hjust = 0, vjust = 1, color = "#ffba76")
  
  final_a
 
@@ -1697,7 +1697,8 @@ b<-
    draw_label("c)", x = 0.11, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1)+
    draw_label("d)", x = 0.487, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
   # Rain cloud
-  draw_image(image = icon_temp, x = -0.43, y = 0.45, scale = 0.080) # Panel A
+  draw_image(image = icon_temp, x = -0.43, y = 0.45, scale = 0.080) +  # Panel A
+  draw_label("*", x = 0.280, y = 0.380, size = 18, fontface = "bold", hjust = 0, vjust = 1, color = "#ffba76")
  
  final_b
 
