@@ -210,8 +210,8 @@ ggplot(aes(y=MaxTemp_C,x=Month, color=as.factor(Year)))+
 
 
 weatherDataMonth %>% 
-  filter(!is.na(Monthly_PDSI)) %>% 
-ggplot(aes(y=Monthly_PDSI,x=Month, color=as.factor(Year)))+
+  filter(!is.na(PDSI)) %>% 
+ggplot(aes(y=PDSI,x=Month, color=as.factor(Year)))+
   geom_line()+
   geom_point(size=4,alpha=0.5)+
   # scale_color_manual(values=sitecolor, name="sites")+
@@ -340,6 +340,75 @@ ggplot(aes(y = MaxTemp_C, x = AvgTemp_C)) +
         axis.title = element_text(size = 25),
         axis.line = element_line(colour = "black"))
 
-ggsave(paste0(file.path(graph.wd,"MaxAvgTemp_.png")), plot = last_plot(), width=7, height=5, dpi = 300, units="in")
+ggsave(paste0(file.path(graph.wd,"MaxAvgTemp_MeanTemp.png")), plot = last_plot(), width=7, height=5, dpi = 300, units="in")
 ```
 
+# correlation between covariates
+Correlation between Precip and Temp
+```{r}
+# All data
+## to run this code, I need to import data from models
+load(file.path(dataout,"DataModel_CoarseEnv/DataModel_Dist_CoarseEnv.RData"))
+
+clim.matrix.df <- as_tibble(clim.matrix)
+
+fit <- lm(Precip_mm ~ MaxTemp_C, data=clim.matrix.df)
+correlation <- cor(clim.matrix.df$Precip_mm,clim.matrix.df$MaxTemp_C)
+
+
+ggplot(data = clim.matrix.df, aes(y = Precip_mm, x = MaxTemp_C)) +
+  stat_function(fun = function(x) predict(fit, newdata = data.frame(MaxTemp_C = x)),
+                color = "black", linewidth = 2) +
+  annotate(label = sprintf("y = %.3f + %.3f x\nR² = %.2f", coef(fit)[1], coef(fit)[2], summary(fit)$r.squared),
+           geom = "text", x = 0, y = 230, size = 5) +
+  annotate(label = paste0("cor = ",round(correlation,2)),
+           geom = "text", x = 0, y = 205, size = 5) +
+  geom_point(shape=19,size=5,alpha=0.5) +
+  # xlim(0,1300)+
+  ylab("Monthly Precipitation (mm)")+
+  xlab(expression("Monthly Maximum Temperature ("*degree*C*")"))+
+  ggtitle("a) Weather data with transient community")+
+  theme_classic()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text.y = element_text(size = 25),
+        axis.text.x = element_text(size = 25),
+        axis.title = element_text(size = 25),
+        plot.title = element_text(face= "bold"),
+        axis.line = element_line(colour = "black"))
+
+ggsave(file.path(graph.wd,"PrecipTempCor.png"), plot = last_plot(), width=7, height=6, dpi = 300, units="in")
+
+# Without transient community 
+## to run this code, I need to import data from models
+load(file.path(dataout,"DataModel_CoarseEnv/DataModel_DistMinus5y_CoarseEnv.RData"))
+
+clim.matrix.df <- as_tibble(clim.matrix)
+
+fit <- lm(Precip_mm ~ MaxTemp_C, data=clim.matrix.df)
+correlation <- cor(clim.matrix.df$Precip_mm,clim.matrix.df$MaxTemp_C)
+
+
+ggplot(data = clim.matrix.df, aes(y = Precip_mm, x = MaxTemp_C)) +
+  stat_function(fun = function(x) predict(fit, newdata = data.frame(MaxTemp_C = x)),
+                color = "black", linewidth = 2) +
+  annotate(label = sprintf("y = %.3f + %.3f x\nR² = %.2f", coef(fit)[1], coef(fit)[2], summary(fit)$r.squared),
+           geom = "text", x = 0, y = 230, size = 5) +
+  annotate(label = paste0("cor = ",round(correlation,2)),
+           geom = "text", x = 0, y = 205, size = 5) +
+  geom_point(shape=19,size=5,alpha=0.5) +
+  # xlim(0,1300)+
+  ylab("Monthly Precipitation (mm)")+
+  xlab(expression("Monthly Maximum Temperature ("*degree*C*")"))+
+  ggtitle("b) Weather data without transient community")+
+  theme_classic()+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        axis.text.y = element_text(size = 25),
+        axis.text.x = element_text(size = 25),
+        axis.title = element_text(size = 25),
+        plot.title = element_text(face= "bold"),
+        axis.line = element_line(colour = "black"))
+
+ggsave(file.path(graph.wd,"PrecipTempCor_Minus5y.png"), plot = last_plot(), width=7, height=6, dpi = 300, units="in")
+```
