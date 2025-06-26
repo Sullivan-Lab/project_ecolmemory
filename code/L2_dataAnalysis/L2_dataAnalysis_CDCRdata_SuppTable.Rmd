@@ -1,0 +1,106 @@
+---
+title: "L2_dataAnalysis_CDCRdata_SuppTable"
+author: "laís petri"
+date: "2025-06-26"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+rm(list = ls())
+started <- Sys.time()
+```
+
+Loading R packages
+```{r, echo=FALSE}
+## data wrangling + plots
+library(tidyverse) 
+library(scales)
+## correlation plots
+library(ggcorrplot)
+## models
+library(rjags)
+library(coda)
+## color blind discrete colors
+library(pals) 
+```
+
+Paths to import files, and export outputs
+```{r}
+workingdir <- getwd()
+datain <- file.path(workingdir, "parameters")
+parameters.wd <- file.path(workingdir, "SuppTable")
+```
+
+Importing dataset
+```{r}
+parameters <- read_csv(file.path(datain,"CoarseEnv/Dist_CoarseEnv_ParametersValues.csv")) %>% 
+  filter(!(grepl("^repY", parameter))) %>% # we don't need to report residuals or replicated data
+  filter(!(grepl("^residuals", parameter)))
+glimpse(parameters)
+```
+
+Writing up summary column for all parameters
+```{r}
+parameters <- parameters %>% 
+    mutate(summary = paste0(
+    round(statistics.Mean, 2), " ± ",
+    round(statistics.SD, 2), " (",
+    round(quantiles.2.5., 2), "; ",
+    round(quantiles.97.5., 2), ")"
+  )) %>% 
+  select(parameter, summary)
+glimpse(parameters)
+```
+
+Global parameters
+```{r}
+globalparam <- parameters %>% 
+  filter(parameter %in% c("tau", 
+                          "tau_a[1]", "tau_a[2]", "tau_a[3]",
+                          "mu_a.star[2]", "mu_a.star[3]")) %>% 
+  mutate(index = str_extract(parameter, "(?<=\\[)\\d+"),
+         parameter = str_remove(parameter, "\\[.*\\]")) %>%
+  mutate(index = as.integer(index)) %>%
+  pivot_wider(id_cols = parameter, names_from = index, values_from = summary) %>% 
+    select(parameter, 
+         sort(setdiff(names(.), c("parameter", "NA"))),  # sort numeric columns
+         `NA`)
+glimpse(globalparam)
+```
+
+Nutrient Level parameters
+```{r}
+ntrtparam <- parameters %>% 
+  filter(grepl("^mu_a_ntrt.star|^tau_a_ntrt", parameter)) %>% 
+  mutate(order = rep(1:4, times=18),
+         ntrt = rep(1:9, each=4, times = 2),
+         parameter = str_remove(parameter, ",.*\\]")) %>% 
+  pivot_wider(id_cols = parameter, names_from = ntrt, values_from = summary)
+
+##CONTINUE FROM HERE
+# - i need to manipulate weightorder separately (because it has 3 numbers inside the brackets, but might work above too, try) and then glue the dataframe to the one above
+```
+
+
+[still needs code adjustments, and to import correct data] transforming tau in standard deviation
+```{r}
+# Assuming `parameters` is your coda mcmc.list object
+
+# Extract tau samples
+tau_samples <- as.matrix(parameters)[, "tau"]
+
+# Compute posterior samples of sig
+sig_samples <- 1 / sqrt(tau_samples)
+
+# Compute summary statistics
+sig_mean <- mean(sig_samples)
+sig_sd <- sd(sig_samples)
+sig_CI <- quantile(sig_samples, probs = c(0.025, 0.975))
+```
+
