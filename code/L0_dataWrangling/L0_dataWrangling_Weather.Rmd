@@ -367,7 +367,7 @@ ggplot(data = clim.matrix.df, aes(y = Precip_mm, x = MaxTemp_C)) +
   # xlim(0,1300)+
   ylab("Monthly Precipitation (mm)")+
   xlab(expression("Monthly Maximum Temperature ("*degree*C*")"))+
-  ggtitle("a) Weather data with transient community")+
+  ggtitle("a) Weather data with initial response")+
   theme_classic()+
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
@@ -400,7 +400,7 @@ ggplot(data = clim.matrix.df, aes(y = Precip_mm, x = MaxTemp_C)) +
   # xlim(0,1300)+
   ylab("Monthly Precipitation (mm)")+
   xlab(expression("Monthly Maximum Temperature ("*degree*C*")"))+
-  ggtitle("b) Weather data without transient community")+
+  ggtitle("b) Weather data without initial response")+
   theme_classic()+
   theme(panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
