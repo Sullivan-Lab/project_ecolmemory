@@ -222,7 +222,8 @@ Alphamodelpar<- parameters_All %>%
          shape=ifelse(exp==1,21,24),
          cat = ifelse(exp==1&dur==1, 1, ifelse(exp==2&dur==1, 2, ifelse(exp==1&dur==2, 3,4)))) %>%
    filter(!(alpha %in% c(1,4))) %>%  #removing intercept and AR
-  left_join(ntrt_qtt)
+  left_join(ntrt_qtt) %>% 
+  mutate(cat = ifelse(dur==1 & exp==2 & ntrt==4, 5, cat))
 
 ## predictions ## NOTE: add biomass column here and in a similar code chunk for litter
 predictions <- precip.pred %>% 
@@ -267,15 +268,17 @@ a<-
               aes(ymin=quantiles.2.5., ymax=quantiles.97.5., x=ntrtpred,fill = as.factor(cat)), alpha=0.2)+
   scale_x_continuous(expand = c(0,0),
                      breaks = c(0.0,1.0,2.0,3.4,5.4,9.5,17.0,27.2))+
-  scale_y_continuous(labels = function(y) format(y, nsmall = 1, digits = 1))+
-  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
-  scale_fill_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
+  scale_y_continuous(breaks = seq(-5,25, by=5),
+                     labels = c("-5.0","0.0","5.0","10.0","15.0","20.0", "25.0"))+
+  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],pals::cols25(5)[4], pals::cols25(5)[5], "gray30"))+
+  scale_fill_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],pals::cols25(5)[4], pals::cols25(5)[5]))+
   scale_shape_manual(values = c(19, 17),
                      labels = c("Intact","Disturbed")) +
-  facet_wrap(~dur, nrow=2, scales = "free_y",
-             labeller = labeller(dur = c("1" = "Precipitation: All Years", "2" = "Precipitation: No Initial Response")))+
+  facet_wrap(~dur, nrow=1, 
+             labeller = labeller(dur = c("1" = "All Years", "2" = "No Initial Response")))+
   xlab(expression(bold("Nutrient addition (g N/m"^2*"/yr)")))+
   ylab("Effect of past weather on biomass\n(posterior mean ± 95% CIs)")+
+  ggtitle("Precipitation")+
   coord_cartesian(clip = "off",
                    xlim=c(-0.3,27.2))+
   theme_regular + 
@@ -289,23 +292,22 @@ a<-
         axis.ticks.x=element_blank(),
         axis.title.y = element_text(size = 12, face = "bold"),
         axis.title.x = element_blank(),
+        title = element_text(face = "bold", size = 12),
         strip.text = element_text(face = "bold", size = 11),
-        plot.margin = margin(t = 5, r = 15, b = 0, l = 5)) +
+        plot.margin = margin(t = 5, r = 15, b = 0, l = 5),
+        panel.spacing = unit(1, "lines")) +
   guides(shape = guide_legend(override.aes = list(alpha=1,size=4,
                                                   color=c(pals::cols25(5)[4],pals::cols25(5)[5]))),
          color = "none",
          fill = "none") +
-  geom_segment(data = filter(Alphamodelpar, dur == 2), 
-               aes(x = -0.42, xend = -0.42, y = -5, yend = 10), inherit.aes = FALSE, color="gray20")+
   geom_segment(data = filter(Alphamodelpar, dur == 1), 
-               aes(x = -0.42, xend = -0.42, y = 0, yend = 20), inherit.aes = FALSE, color="gray20")
+               aes(x = -0.42, xend = -0.42, y = -5, yend = 20), inherit.aes = FALSE, color="gray20")
 
 final_a <- ggdraw(a) +
-  draw_label("a)", x = 0.175, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
-  draw_label("b)", x = 0.175, y = 0.472, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("a)", x = 0.08, y = 0.902, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("b)", x = 0.545, y = 0.902, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
   # Rain cloud
-  draw_image(image = icon_rain, x = -0.395, y = 0.44, scale = 0.060) +  # Panel A
-  draw_label("†", x = 0.245, y = 0.710, size = 10, fontface = "bold", hjust = 0, vjust = 1, color = "#ffba76")
+  draw_image(image = icon_rain, x = -0.45, y = 0.385, scale = 0.060)  # Panel A
 
  final_a
 ```
@@ -335,14 +337,15 @@ b<-
                      breaks = c(0,1,2,3.4,5.4,9.5,17,27.2),
                      labels = c("0","1","2","3.4","5.4","9.5","17","27.2"))+
   scale_y_continuous(n.breaks = 7) +
-  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
-  scale_fill_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],"#ab8ae0","#ffba76"))+
+  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],pals::cols25(5)[4], pals::cols25(5)[5], "gray30"))+
+  scale_fill_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5],pals::cols25(5)[4], pals::cols25(5)[5]))+
   scale_shape_manual(values = c(19, 17),
                      labels = c("Intact","Disturbed")) +
-  facet_wrap(~dur, nrow=2, scales = "free_y",
-             labeller = labeller(dur = c("1" = "Temperature: All Years", "2" = "Temperature: No Initial Response")))+
+  facet_wrap(~dur, nrow=1, 
+             labeller = labeller(dur = c("1" = "All Years", "2" = "No Initial Response")))+
   xlab(expression(bold("Nutrient addition (g N/m"^2*"/yr)")))+
-    ylab("Effect of past weather on biomass\n(posterior mean ± 95% CIs)")+
+  ylab("Effect of past weather on biomass\n(posterior mean ± 95% CIs)")+
+  ggtitle("Temperature")+
   coord_cartesian(clip = "off",
                    xlim=c(-0.3,27.2))+
   theme_regular+ 
@@ -355,25 +358,24 @@ b<-
         axis.text.x = element_text(size = 10),
         axis.title.y = element_text(size = 12, face = "bold"),
         axis.title.x = element_text(size = 12),
+        title = element_text(face = "bold", size = 12),
         strip.text = element_text(face = "bold", size = 11),
-        plot.margin = margin(t = 5, r = 15, b = 0, l = 5)) +
+        plot.margin = margin(t = 5, r = 15, b = 0, l = 5),
+        panel.spacing = unit(1, "lines")) +
   guides(shape = guide_legend(override.aes = list(alpha=1,size=4,
                                                   color=c(pals::cols25(5)[4],pals::cols25(5)[5]))),
          color = "none",
          fill = "none")+
-  geom_segment(data = filter(Alphamodelpar, dur == 2),
+  geom_segment(data = filter(Alphamodelpar),
                aes(x = 0, xend = 27.2, y = -Inf, yend = -Inf), inherit.aes = FALSE, color="gray20") +
-  geom_segment(data = filter(Alphamodelpar, dur == 2), 
-               aes(x = -0.42, xend = -0.42, y = -50, yend = 75), inherit.aes = FALSE, color="gray20")+
   geom_segment(data = filter(Alphamodelpar, dur == 1), 
                aes(x = -0.42, xend = -0.42, y = -50, yend = 200), inherit.aes = FALSE, color="gray20")
 
 final_b <- ggdraw(b) +
-  draw_label("c)", x = 0.175, y = 0.969, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
-  draw_label("d)", x = 0.175, y = 0.520, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("c)", x = 0.08, y = 0.905, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
+  draw_label("d)", x = 0.545, y = 0.905, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
   # Rain cloud
-  draw_image(image = icon_temp, x = -0.395, y = 0.44, scale = 0.060) +  # Panel A.
-  draw_label("†", x = 0.238, y = 0.760, size = 10, fontface = "bold", hjust = 0, vjust = 1, color = "#ffba76")
+  draw_image(image = icon_temp, x = -0.45, y = 0.39, scale = 0.080)  # Panel A.
 
  final_b
 ```
@@ -383,7 +385,7 @@ Merge plots
 full <- plot_grid(final_a, final_b, nrow=2, ncol = 1, rel_heights = c(0.95,1))
 full
 
-ggsave(file.path(graph.wd,"Fig2_EnvCoefVSNtrt.png"), plot = last_plot(), width=6, height=8, dpi = res_export, units="in")
+ggsave(file.path(graph.wd,"Fig2_EnvCoefVSNtrt.png"), plot = last_plot(), width=11, height=8, dpi = res_export, units="in")
 ```
 
 ###- [Main] Memory Temporal Patterns
@@ -421,7 +423,7 @@ a<-
                      labels = c("1" = "Intact", "2" = "Disturbed")
                      # guide = "none"
                      ) +  
-  scale_linetype_manual(values = c("1" = "solid", "2" = "dashed"),
+  scale_linetype_manual(values = c("1" = "solid", "2" = "dotted"),
                         labels = c("1" = "All years", "2" = "No initial\nresponse")) +
  scale_x_continuous(expand = c(0.01,0),
                        breaks = seq(2,36, by=3),
@@ -478,7 +480,7 @@ b<-
                      labels = c("1" = "Intact", "2" = "Disturbed")
                      # guide = "none"
                      ) +  
-  scale_linetype_manual(values = c("1" = "solid", "2" = "dashed"),
+  scale_linetype_manual(values = c("1" = "solid", "2" = "dotted"),
                         labels = c("1" = "All years", "2" = "No initial\nresponse")) +
   scale_x_continuous(expand = c(0.01,0),
                        breaks = seq(2,36, by=3),
@@ -566,7 +568,8 @@ WEIGHTMoLength <- WEIGHTMoLength %>%
 WEIGHTMoLength <- WEIGHTMoLength %>% 
   group_by(ntrt, variable, dur, ntrtLong) %>% 
   summarise(mean_mem_length = mean(mem_length), sd_mem_length = sd(mem_length)) %>% 
-  mutate(color_group = ifelse(mean_mem_length >= 0, "positive", "negative"))
+  mutate(color_group = ifelse(mean_mem_length >= 0, "positive", "negative"),
+         color_group = ifelse(dur==1 & ntrt==4, 'neutral', color_group))
 ```
 
 Plot side-by-side: Precipitation - live biomass
@@ -578,7 +581,7 @@ a<-
              x=ntrtLong,
              fill=color_group))+
   geom_boxplot(alpha = 0.3, outlier.size = 0, size=0.3) + 
-  geom_bar(stat = "identity", color = "black", size = 0) +
+  geom_bar(stat = "identity", color = NA, size = 0) +
   geom_errorbar(aes(
     ymin = mean_mem_length - sd_mem_length,
     ymax = mean_mem_length + sd_mem_length,
@@ -586,9 +589,11 @@ a<-
   ), width = 0.3, size = 0.3)+
     geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_fill_manual(values = c("positive" = "#6A33C2",  # purple
-                             "negative" = "#ff7f00")) + # orange
+                             "negative" = "#ff7f00",
+                             "neutral" = "gray70")) + # orange
   scale_color_manual(values = c("positive" = "#6A33C2",  # purple
-                             "negative" = "#ff7f00")) + # orange
+                             "negative" = "#ff7f00",
+                             "neutral" = "gray70")) + # orange
   scale_shape_manual(values =c(21,24))+
   scale_y_continuous(breaks = c(6,3,0,-3,-6),
                      labels = function(y) format(y, nsmall = 1, digits = 1)) +
@@ -598,6 +603,7 @@ a<-
   facet_grid(~dur, labeller = labeller(dur = c("1" = "All Years", "2" = "No Initial Response"))) +
   ylab("Difference in months when\nmemory length is >50%\n(mean ± sd)")+
   xlab("")+  
+  ggtitle("Precipitation")+
   geom_segment(data = filter(WEIGHTMoLength, dur == 1),
                aes(x = 0.27, xend = 0.27, y = -6, yend = 6), inherit.aes = FALSE, color="gray20") +
   annotate("segment", y=-Inf, yend=-Inf, x=1, xend=9, color = "gray20") +
@@ -614,18 +620,16 @@ a<-
   annotate("text", x = 11.75, y = 6.55, label = "Longer\nMemory\nin:", color = "black", fontface = "bold", size = 3.5)+
   annotate("text", x = 11.75, y = 3.5, label = "\nINTACT\nplots", color = "gray30", fontface = "bold", size = 3.3)+
   annotate("text", x = 11.75, y = -3.5, label = "\nDISTURBED\nplots", color = "gray30", fontface = "bold", size = 3.3)+
-   geom_text(data = filter(WEIGHTMoLength, dur == 1),
-               aes(x = 2.5, y = 8.2), inherit.aes = FALSE, label = "Precipitation", color = "black", size = 5, fontface = "bold")+
   theme_regular +
-  theme(plot.margin = margin(t = 15, r = 75, b = 5, l = 5))
+  theme(plot.margin = margin(t = 2, r = 75, b = 5, l = 5),
+        title = element_text(face = "bold", size = 12))
 
  final_a <- ggdraw(a) +
-   draw_label("a)", x = 0.14, y = 0.939, size = 13, fontface = "bold", hjust = 0, vjust = 1)+
-   draw_label("b)", x = 0.51, y = 0.939, size = 13, fontface = "bold", hjust = 0, vjust = 1)+
+   draw_label("a)", x = 0.14, y = 0.916, size = 13, fontface = "bold", hjust = 0, vjust = 1)+
+   draw_label("b)", x = 0.51, y = 0.916, size = 13, fontface = "bold", hjust = 0, vjust = 1)+
   # Rain cloud
-  draw_image(image = icon_rain, x = -0.43, y = 0.45, scale = 0.050) +  # Panel A
-  draw_label("†", x = 0.300, y = 0.435, size = 10, fontface = "bold", hjust = 0, vjust = 1, color = "#ffba76")
- 
+  draw_image(image = icon_rain, x = -0.43, y = 0.4, scale = 0.060)  # Panel A
+
  final_a
 ```
 
@@ -646,9 +650,11 @@ ggplot(aes(y=mean_mem_length,
   ), width = 0.3, size = 0.3)+
     geom_hline(yintercept = 0, linetype = "dashed", color = "black") +
   scale_fill_manual(values = c("positive" = "#6A33C2",  # purple
-                             "negative" = "#ff7f00")) + # orange
+                             "negative" = "#ff7f00",
+                             "neutral" = "gray70")) + # orange
   scale_color_manual(values = c("positive" = "#6A33C2",  # purple
-                             "negative" = "#ff7f00")) + # orange
+                             "negative" = "#ff7f00",
+                             "neutral" = "gray70")) + # orange
   scale_shape_manual(values =c(21,24))+
   scale_y_continuous(breaks = c(6,3,0,-4,-8),
                      labels = function(y) format(y, nsmall = 1, digits = 1)) +
@@ -658,6 +664,7 @@ ggplot(aes(y=mean_mem_length,
   facet_grid(~dur, labeller = labeller(dur = c("1" = "All Years", "2" = "No Initial Response"))) +
   ylab("Difference in months when\nmemory length is >50%\n(mean ± sd)")+
   xlab("")+  
+  ggtitle("Temperature")+
   geom_segment(data = filter(WEIGHTMoLength, dur == 1), 
                aes(x = 0.27, xend = 0.27, y = -8, yend = 6), inherit.aes = FALSE, color="gray20") +
   annotate("segment", y=-Inf, yend=-Inf, x=1, xend=9, color = "gray20") +
@@ -674,18 +681,16 @@ ggplot(aes(y=mean_mem_length,
   annotate("text", x = 11.75, y = 6.75, label = "Longer\nMemory\nin:", color = "black", fontface = "bold", size = 3.5)+
   annotate("text", x = 11.75, y = 3.5, label = "\nINTACT\nplots", color = "gray30", fontface = "bold", size = 3.3)+
   annotate("text", x = 11.75, y = -4.5, label = "\nDISTURBED\nplots", color = "gray30", fontface = "bold", size = 3.3)+
-  geom_text(data = filter(WEIGHTMoLength, dur == 1),
-               aes(x = 2.5, y = 8.5), inherit.aes = FALSE, label = "Temperature", color = "black", size = 5, fontface = "bold")+
   theme_regular +
-  theme(plot.margin = margin(t = 15, r = 75, b = 5, l = 5))
+  theme(plot.margin = margin(t = 2, r = 75, b = 5, l = 5),
+        title = element_text(face = "bold", size = 12))
 
  final_b <- ggdraw(b) +
-   draw_label("c)", x = 0.14, y = 0.939, size = 13, fontface = "bold", hjust = 0, vjust = 1)+
-   draw_label("d)", x = 0.51, y = 0.939, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
+   draw_label("c)", x = 0.14, y = 0.916, size = 13, fontface = "bold", hjust = 0, vjust = 1)+
+   draw_label("d)", x = 0.51, y = 0.916, size = 13, fontface = "bold", hjust = 0, vjust = 1) +
   # Rain cloud
-  draw_image(image = icon_temp, x = -0.43, y = 0.45, scale = 0.080) +  # Panel A
-  draw_label("†", x = 0.300, y = 0.402, size = 10, fontface = "bold", hjust = 0, vjust = 1, color = "#ffba76")
- 
+  draw_image(image = icon_temp, x = -0.43, y = 0.4, scale = 0.080)   # Panel A
+
  final_b
 ```
 
