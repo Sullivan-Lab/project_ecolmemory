@@ -16,7 +16,7 @@ A repository for code and analysis of the ecological memory of live biomass prod
 
 ## Introduction
 
-[*Clearly state the purpose of this repository, including a description of how it fits into the broader goals of the NEON-biodiversity project as a whole.*]  
+This repository allows readers to run models to reproduce results and figures of the paper "Ecological memory mediates plant biomass response to multiple global change drivers", currently submitted to *Ecology Letters*.
 
 ## Workflow
 
@@ -67,8 +67,8 @@ R version 4.5.1 and RStudio version 2025.05.0.
 
 ## Contributors
 
-[*List individuals or organizations involved in collecting, processing, and maintaining the Level 0 data.*]
+Plant data has been collected since 1982 at [Cedar Creek LTER](https://cedarcreek.umn.edu/research/data), and pre-processed data used to generate the files we store here in `data/L0` was obtained from [DeSiervo et al. 2023](https://doi.org/10.1111/ele.14229).
 
 ## Contact Information
 
-[*Provide contact information for inquiries related to the data and scripts.*]
+Laís Petri at petrila1<at>msu.edu.
