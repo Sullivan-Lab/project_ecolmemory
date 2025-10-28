@@ -22,7 +22,7 @@ Paths to import files, and export outputs
 rm(list = ls())
 
 workingdir <- getwd()
-datain <- file.path(workingdir, "data/L1")
+datain <- file.path(workingdir, "data/L0")
 dataout <- file.path(workingdir, "data/L1/DataModel_CoarseEnv")
 ```
 
@@ -249,25 +249,6 @@ df3testNewMaxTemp <- df3testNewMaxTemp %>%
   column_to_rownames(var="ID") %>% 
   as.matrix()
 
-# # wrangling data for PDSI variable
-# df3testNewPDSI <- df3testNew %>% 
-#   select(Year,Month,PDSI) %>% 
-#   mutate(ID=1) 
-# 
-# # checking whether the data is complete
-# df3testNewPDSI %>% group_by(Year) %>% count() %>% filter(n!=12)
-# # checking whether there is NAs --> none
-# df3testNewPDSI %>% filter(is.na(PDSI))
-# 
-# df3testNewPDSI <- df3testNewPDSI %>% 
-#   unite("year_month",Year:Month,sep="_") %>% 
-#   pivot_wider(names_from = year_month,
-#               values_from = PDSI) %>% 
-#   slice(rep(row_number(), max(df2testNew$plot_new))) %>%  #162 equals the number of plots
-#   mutate(ID = 1:n()) %>% 
-#   column_to_rownames(var="ID") %>% 
-#   as.matrix()
-
 # creating means for weather data
 
 df3testNew_Mean <- df3testNew %>% 
@@ -296,16 +277,6 @@ df3testNew_MeanMaxTemp <- df3testNew_Mean %>%
   mutate(ID = 1:n()) %>% 
   column_to_rownames(var="ID") %>% 
   as.matrix()
-
-# # wrangling data for PDSI MEAN variable
-# df3testNew_MeanPDSI <- df3testNew_Mean %>% 
-#   select(-Precip_mm, -MaxTemp_C) %>% 
-#   pivot_wider(names_from = Month,
-#               values_from = PDSI) %>% 
-#   slice(rep(row_number(), max(df2testNew$plot_new))) %>%  #162 equals the number of plots
-#   mutate(ID = 1:n()) %>% 
-#   column_to_rownames(var="ID") %>% 
-#   as.matrix()
 
 ## what Drew needs given the changes in the model
 # clim.means will be 12 months x 3 variables.
@@ -465,26 +436,6 @@ df3testNewMaxTemp <- df3testNewMaxTemp %>%
   column_to_rownames(var="ID") %>% 
   as.matrix()
 
-# # wrangling data for PDSI variable
-# df3testNewPDSI <- df3testNew %>% 
-#   select(Year,Month,PDSI) %>% 
-#   mutate(ID=1) 
-# 
-# # checking whether the data is complete
-# df3testNewPDSI %>% group_by(Year) %>% count() %>% filter(n!=12)
-# # checking whether there is NAs --> none
-# df3testNewPDSI %>% filter(is.na(PDSI))
-# 
-# df3testNewPDSI <- df3testNewPDSI %>% 
-#   unite("year_month",Year:Month,sep="_") %>% 
-#   pivot_wider(names_from = year_month,
-#               values_from = PDSI) %>% 
-#   slice(rep(row_number(), max(df2testNew$plot_new))) %>%  #162 equals the number of plots
-#   mutate(ID = 1:n()) %>% 
-#   column_to_rownames(var="ID") %>% 
-#   as.matrix()
-
-
 # creating means for weather data
 df3testNew_Mean <- df3testNew %>% 
   group_by(Month) %>% 
@@ -512,16 +463,6 @@ df3testNew_MeanMaxTemp <- df3testNew_Mean %>%
   mutate(ID = 1:n()) %>% 
   column_to_rownames(var="ID") %>% 
   as.matrix()
-
-# # wrangling data for PDSI MEAN variable
-# df3testNew_MeanPDSI <- df3testNew_Mean %>% 
-#   select(-Precip_mm, -MaxTemp_C) %>% 
-#   pivot_wider(names_from = Month,
-#               values_from = PDSI) %>% 
-#   slice(rep(row_number(), max(df2testNew$plot_new))) %>%  #162 equals the number of plots
-#   mutate(ID = 1:n()) %>% 
-#   column_to_rownames(var="ID") %>% 
-#   as.matrix()
 
 ## what Drew needs given the changes in the model
 # clim.means will be 12 months x 3 variables.
