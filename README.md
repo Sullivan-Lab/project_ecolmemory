@@ -36,7 +36,7 @@ A repository for code and analysis of the ecological memory of live biomass prod
 
 ## Usage
 
-[*Specify which software and versions were used to create the scripts (e.g., R version 4.3.0).*]
+R version 4.5.1 and RStudio version 2025.05.0. 
 
 ### File Naming Conventions
 
