@@ -1,7 +1,7 @@
 # Ecological Memory of Grasslands
-A repository for code and analysis of the ecological memory of live biomass production and dead biomass accumulation from experiments E001 and E002 at Cedar Creek Ecosystem Science Reserve.
+A repository for code and analysis of the ecological memory of plant biomass production from experiments E001 and E002 at Cedar Creek Ecosystem Science Reserve.
 
-## Table of Contents (LP needs to modify template below)
+## Table of Contents
 - [Introduction](#Introduction)
 - [Workflow](#Workflow)
 - [Location of data](#Location-of-data)
