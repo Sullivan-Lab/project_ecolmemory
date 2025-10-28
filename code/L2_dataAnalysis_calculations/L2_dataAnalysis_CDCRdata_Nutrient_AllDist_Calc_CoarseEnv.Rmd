@@ -31,7 +31,6 @@ Folders
 ```{r}
 workingdir <- getwd()
 datain <- file.path(workingdir, "parameters/CoarseEnv")
-ldatain <- file.path(workingdir, "parameters/CoarseEnv_FieldsAB")
 ```
 
 General objects   
@@ -74,39 +73,6 @@ glimpse(parameters0_Dist2)
 parameters_All <- rbind(parameters0_NoDist,parameters0_Dist,parameters0_NoDist2,parameters0_Dist2) 
 ```
 
-- dead biomass
-```{r}
-## All years
-# Intact model results
-parameters0_NoDist <- read_csv(file.path(ldatain,"NoDist_Litter_FieldsAB_CoarseEnv_ParametersValues.csv")) %>% 
-    mutate(exp = 1,
-           dur = 1) # 1=All years, 2 = Minus5y
-glimpse(parameters0_NoDist)
-
-# Disturbed model results
-parameters0_Dist <- read_csv(file.path(ldatain,"Dist_Litter_FieldsAB_CoarseEnv_ParametersValues.csv")) %>% 
-    mutate(exp = 2,
-           dur = 1)
-glimpse(parameters0_Dist)
-
-## Minus5y
-# Intact model results
-parameters0_NoDist2 <- read_csv(file.path(ldatain,"NoDist_Litter_FieldsAB_Minus5y_CoarseEnv_ParametersValues.csv")) %>% 
-    mutate(exp = 1,
-           dur = 2)
-glimpse(parameters0_NoDist2)
-
-# Disturbed model results
-parameters0_Dist2 <- read_csv(file.path(ldatain,"Dist_Litter_FieldsAB_Minus5y_CoarseEnv_ParametersValues.csv")) %>% 
-    mutate(exp = 2,
-           dur = 2)
-glimpse(parameters0_Dist2)
-
-# merging all datasets
-lparameters_All <- rbind(parameters0_NoDist,parameters0_Dist,parameters0_NoDist2,parameters0_Dist2) 
-```
-
-
 Importing datasets: values from posterior distributions
 - live biomass
 ```{r}
@@ -127,27 +93,6 @@ glimpse(parametersPost_NoDist2)
 # Disturbed model results
 parametersPost_Dist2 <- read_csv(file.path(datain,"DistMinus5y_CoarseEnv_parameters.csv"))
 glimpse(parametersPost_Dist2)
-```
-
-- dead biomass
-```{r}
-## All years
-# Intact model results
-lparametersPost_NoDist <- read_csv(file.path(ldatain,"NoDist_Litter_FieldsAB_CoarseEnv_parameters.csv"))
-glimpse(lparametersPost_NoDist)
-
-# Disturbed model results
-lparametersPost_Dist <- read_csv(file.path(ldatain,"Dist_Litter_FieldsAB_CoarseEnv_parameters.csv"))
-glimpse(lparametersPost_Dist)
-
-## Minus5y
-# Intact model results
-lparametersPost_NoDist2 <- read_csv(file.path(ldatain,"NoDist_Litter_FieldsAB_Minus5y_CoarseEnv_parameters.csv"))
-glimpse(lparametersPost_NoDist2)
-
-# Disturbed model results
-lparametersPost_Dist2 <- read_csv(file.path(ldatain,"Dist_Litter_FieldsAB_Minus5y_CoarseEnv_parameters.csv"))
-glimpse(lparametersPost_Dist2)
 ```
 
 Importing datasets: predictions of effect vs ntrt quantity
@@ -178,35 +123,6 @@ temp.pred2 <- read_csv(file.path(workingdir,"parameters/CoarseEnv_Slopes/abgMinu
   mutate(alpha=3,
          dur = 2)
 glimpse(temp.pred2)
-```
-
-- dead biomass
-```{r}
-## All years
-# Preciptation
-lprecip.pred <- read_csv(file.path(workingdir,"parameters/CoarseEnv_FieldsAB_Slopes/litter/precipData_ParametersValues.csv")) %>% 
-  mutate(alpha=2,
-         dur = 1)
-glimpse(lprecip.pred)
-
-# temperature
-ltemp.pred <- read_csv(file.path(workingdir,"parameters/CoarseEnv_FieldsAB_Slopes/litter/tempData_ParametersValues.csv")) %>% 
-  mutate(alpha=3,
-         dur = 1)
-glimpse(ltemp.pred)
-
-## Minus5y
-# Preciptation
-lprecip.pred2 <- read_csv(file.path(workingdir,"parameters/CoarseEnv_FieldsAB_Slopes/litterMinus5y/precipData_ParametersValues.csv")) %>% 
-  mutate(alpha=2,
-         dur = 2)
-glimpse(lprecip.pred2)
-
-# temperature
-ltemp.pred2 <- read_csv(file.path(workingdir,"parameters/CoarseEnv_FieldsAB_Slopes/litterMinus5y/tempData_ParametersValues.csv")) %>% 
-  mutate(alpha=3,
-         dur = 2)
-glimpse(ltemp.pred2)
 ```
 
 # Results (Calculations)
@@ -272,81 +188,3 @@ parameters_All %>%
   mutate(var = rep(c("precip","temp"), times=2)) %>% 
   arrange(var)
 ```
-
-## DEAD biomass
-### All Years
-- Global effects: percent of posterior distribution above 0
-```{r}
-# PRECIPITATION
-# Disturbed plots: all years
-# Extract posterior samples for "mu_a"
-mu_a_samplesD_All <- as.matrix(lparametersPost_Dist)[,"mu_a.star[2]"]
-
-# Calculate the proportion of samples greater than 0
-print(paste("Percentage of the posterior distribution above 0 for disturbed plots [all years, precipitation]:", round(mean(mu_a_samplesD_All > 0)*100,1)))
-
-# TEMPERATURE
-# Disturbed plots: minus 5y
-# Extract posterior samples for "mu_a"
-mu_a_samplesD_Minus5y <- as.matrix(lparametersPost_Dist2)[,"mu_a.star[3]"]
-
-# Calculate the proportion of samples greater than 0
-print(paste("Percentage of the posterior distribution above 0 for disturbed plots [minus 5y, temperature]:", round(mean(mu_a_samplesD_Minus5y > 0)*100,1)))
-```
-
-- Magnitude of effect: Disturbed/Intact of each ntrt trt per environmental variable
-```{r}
-Alphamodelpar_ratio <- lparameters_All %>% 
-  filter(grepl("^mu_a_ntrt.star",parameter)) %>% 
-  mutate(alpha = rep(1:4,times=36),
-         ntrt = factor(rep(1:9,times=4, each=4), levels = order_levels),
-         ntrtLong = factor(rep(c("0 + All", "1 + All", "2 + All", "3.4 + All", "5.4 + All", "9.5 + All", "17 + All", "27.2 + All", "0 + None"),times=4, each=4), levels = ntrtLong_levels)) %>% 
-  filter(alpha %in% c(2,3)) %>% 
-  arrange(alpha, ntrt, ntrtLong, exp) %>%  
-  group_by(alpha, ntrt, ntrtLong) %>%
-  summarize(statistics_Mean_ratio = round(abs(statistics.Mean[exp == 2]) / abs(statistics.Mean[exp == 1]),2)) %>%
-  ungroup() %>% 
-  mutate(alpha_name = ifelse(alpha==2, "Precipitation", "Temperature")) %>% 
-  select(alpha_name, everything())
-
-Alphamodelpar_ratio
-```
-
-- Magnitude of effect: Intact/Disturbed per environmental variable
-```{r}
-# all years
-lprecip.pred %>% 
-  filter(grepl("^beta\\[\\d+\\]$",parameter)) %>% 
-  mutate(exp = c(1,2)) %>% 
-  group_by(alpha) %>% 
-  summarise(statistics_Mean_ratio = round(abs(statistics.Mean[exp == 1]) / abs(statistics.Mean[exp == 2]),2))
-
-ltemp.pred %>% 
-  filter(grepl("^beta\\[\\d+\\]$",parameter)) %>% 
-  mutate(exp = c(1,2)) %>% 
-  group_by(alpha) %>% 
-  summarise(statistics_Mean_ratio = round(abs(statistics.Mean[exp == 1]) / abs(statistics.Mean[exp == 2]),2))
-
-# minus 5y
-lprecip.pred2 %>% 
-  filter(grepl("^beta\\[\\d+\\]$",parameter)) %>% 
-  mutate(exp = c(1,2)) %>% 
-  group_by(alpha) %>% 
-  summarise(statistics_Mean_ratio = round(abs(statistics.Mean[exp == 1]) / abs(statistics.Mean[exp == 2]),2))
-
-ltemp.pred2 %>% 
-  filter(grepl("^beta\\[\\d+\\]$",parameter)) %>% 
-  mutate(exp = c(1,2)) %>% 
-  group_by(alpha) %>% 
-  summarise(statistics_Mean_ratio = round(abs(statistics.Mean[exp == 1]) / abs(statistics.Mean[exp == 2]),2))
-```
-
-Raw overall effect of each environmental variable on dead biomass
-```{r}
-lparameters_All %>% 
-  filter(grepl("^mu_a.star\\[\\d+\\]$",parameter),
-         dur==1) %>% # coefs for full dataset ony
-  mutate(var = rep(c("precip","temp"), times=2)) %>% 
-  arrange(var)
-```
-
