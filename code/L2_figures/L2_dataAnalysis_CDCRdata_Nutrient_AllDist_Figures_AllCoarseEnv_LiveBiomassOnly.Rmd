@@ -81,7 +81,7 @@ temp.pred <- read_csv(file.path(workingdir,"parameters/CoarseEnv_Slopes/abg/temp
 glimpse(temp.pred)
 
 ## Minus5y
-# Preciptation
+# Precipitation
 precip.pred2 <- read_csv(file.path(workingdir,"parameters/CoarseEnv_Slopes/abgMinus5y/precipData_ParametersValues.csv")) %>% 
   mutate(alpha=2,
          dur = 2)
