@@ -20,11 +20,17 @@ This repository allows readers to run models to reproduce results and figures of
 
 ## Workflow
 
-[*Provide a high-level overview of the steps in the workflow (e.g., Download raw data files, merge to plot-level data, conduct analyses).*] 
+This repository is organized in to four main folders:
+- `code`: contains folders for wrangling the data to generate data files for analysis (`/L1_dataWrangling_DataForModels`), run the analysis (`/L2_dataAnalysis`), perform calculations based on model estimates (`/L2_dataAnalysis_calculations`), and generate the figures present in the main paper (`/L2_figures`).
+- `data`: contains a folder for raw data (`/L0`) and one for processed data to be used to run the analysis (`/L1`)
+- `figures`:
+- `parameters`
+
+After cloning this repository, downloaded the data from [DRYAD](link) and paste the files in their respective folders (specifications can be found here). Then, run the code. The data files in the appropriate structure needed to run the models can be (and should be) generated from this repository to then run the models. Be aware that these models are complex and running them might take days. All figures present in the manuscript can be generated *without* running the models by using the files present in [DRYAD](link). 
 
 ## Location of data 
 
-[*Specify the location(s) where the data that are processed or result from the scripts in this repository are stored (e.g., One Drive)*]
+All CSV files needed to run this code can be found in [DRYAD](link).
 
 ## Spatiotemporal extent and resolution 
 
@@ -60,14 +66,16 @@ R version 4.5.1 and RStudio version 2025.05.0.
 - **Outputs**: [*Merged dataset saved as `merged_data.csv` in the `/output` folder.*]
 
 ## Funding Sources
-[*Provide a list of funding sources for this projects*]
+
+Data collection at Cedar Creek Ecosystem Science Reserve was funded, in part, by the University of Minnesota and NSF grant DEB-2425352. DMPP was supported by the USGS-Southwest Climate Adaptation Science Center.
 
 ## Acknowledgements
-[*Provide a list of acknowledgements here to keep track of this*]
+
+We thank the Sullivan Lab for their valuable feedback. We also acknowledge everyone who contributed to data collection over the years of experiments E001 and E002 at the Cedar Creek Ecosystem Science Reserve. This is Kellogg Biological Station Contribution no.___.
 
 ## Contributors
 
-Plant data has been collected since 1982 at [Cedar Creek LTER](https://cedarcreek.umn.edu/research/data), and pre-processed data used to generate the files we store here in `data/L0` was obtained from [DeSiervo et al. 2023](https://doi.org/10.1111/ele.14229).
+Plant data has been collected since 1982 at [Cedar Creek Ecosystem Science Reserve LTER](https://cedarcreek.umn.edu/research/data), and pre-processed data used to generate the files we store here in `data/L0` was obtained from [DeSiervo et al. 2023](https://doi.org/10.1111/ele.14229).
 
 ## Contact Information
 
