@@ -46,58 +46,7 @@ process_rdata_file <- function(file_path) {
   # Safely extract tau samples
   tau_a_ntrt_names <- outer(1:4, 1:9, function(i, j) paste0("tau_a_ntrt[", i, ",", j, "]")) %>% as.vector()
   tau_names <- c("tau", "tau_a[1]", "tau_a[2]", "tau_a[3]", tau_a_ntrt_names)
-  posterior_mat <- as.matrix(parameters)
-  
-  if (!all(tau_names %in% colnames(posterior_mat))) return(NULL)
-  tau_samples <- posterior_mat[, tau_names]
-  
-  # Compute sig samples and summary
-  sig_samples <- 1 / sqrt(tau_samples)
-  sig_summary <- apply(sig_samples, 2, function(x) {
-    c(statistics.Mean = mean(x),
-      statistics.SD = sd(x),
-      quantiles.2.5. = quantile(x, 0.025)[[1]],
-      quantiles.97.5. = quantile(x, 0.975)[[1]])
-  })
-  
-  sig_summary_df <- as.data.frame(t(sig_summary)) %>%
-    rownames_to_column("parameter") %>%
-    as_tibble()
-  
-  # Write CSV
-  write_csv(sig_summary_df, file.path(parameters.wd, paste0(expName, "_sig.csv")))
-  
-  return(sig_summary_df)
-}
-
-# Apply to all RData files
-results <- map(rdata_files, process_rdata_file)
-
-```
-
-- Dead biomass
-```{r}
-
-# Define your folder
-parameters.wd <- file.path(getwd(), "parameters/CoarseEnv_FieldsAB")
-
-# List all RData files in that folder
-rdata_files <- list.files(parameters.wd, pattern = "\\.RData$", full.names = TRUE)
-
-# Create a function to process each file
-process_rdata_file <- function(file_path) {
-  # Load the .RData file (assumes it creates `parameters` object)
-  load(file_path)
-  
-  parameters.wd <- file.path(getwd(), "parameters/CoarseEnv_FieldsAB")
-  
-  # Skip if 'parameters' object doesn't exist or is not a matrix-compatible object
-  if (!exists("parameters")) return(NULL)
-  
-  # Safely extract tau samples
-  tau_a_ntrt_names <- outer(1:4, 1:9, function(i, j) paste0("tau_a_ntrt[", i, ",", j, "]")) %>% as.vector()
-  tau_names <- c("tau", "tau_a[1]", "tau_a[2]", "tau_a[3]", tau_a_ntrt_names)
-  posterior_mat <- as.matrix(parameters)
+  posterior_mat <- as.matrix(do.call(rbind, parameters))
   
   if (!all(tau_names %in% colnames(posterior_mat))) return(NULL)
   tau_samples <- posterior_mat[, tau_names]
@@ -230,119 +179,10 @@ process_model_output <- function(prefix) {
   )
 
   write_xlsx(sheet_list, path = file.path(dataout, paste0(prefix, ".xlsx")))
-  message("✔️ Processed and saved: ", prefix)
+  message("Processed and saved: ", prefix)
 }
 
 # Run the function over all prefixes
 walk(prefixes, process_model_output)
 
 ```
-
-- Dead biomass
-```{r}
-# Define your input and output folders
-datain <- file.path(getwd(), "parameters/CoarseEnv_FieldsAB")
-dataout <- file.path(getwd(), "parameters/SuppTable")
-
-# List all files and extract the common prefixes
-all_files <- list.files(datain, pattern = "_sig\\.csv$|_ParametersValues\\.csv$")
-prefixes <- all_files %>%
-  str_extract("^(.*?)(?=_(sig|ParametersValues)\\.csv$)") %>%
-  unique()
-
-# Function to process one prefix (i.e., one model run)
-process_model_output <- function(prefix) {
-  # Load files
-  sig_file <- file.path(datain, paste0(prefix, "_sig.csv"))
-  param_file <- file.path(datain, paste0(prefix, "_ParametersValues.csv"))
-  
-  if (!file.exists(sig_file) || !file.exists(param_file)) {
-    message("Skipping missing files for: ", prefix)
-    return(NULL)
-  }
-  
-  sig_parameters <- read_csv(sig_file, show_col_types = FALSE)
-  parameters <- read_csv(param_file, show_col_types = FALSE) %>%
-    filter(!grepl("^repY|^residuals|^tau", parameter))
-  
-  # Combine and compute summary column
-  parameters <- parameters %>%
-    bind_rows(sig_parameters) %>%
-    mutate(summary = paste0(
-      round(statistics.Mean, 2), " ± ",
-      round(statistics.SD, 2), " (",
-      round(quantiles.2.5., 2), "; ",
-      round(quantiles.97.5., 2), ")"
-    )) %>%
-    select(parameter, summary)
-
-  # Global parameters
-  globalparam <- parameters %>%
-    filter(parameter %in% c("tau", "tau_a[1]", "tau_a[2]", "tau_a[3]",
-                            "mu_a.star[2]", "mu_a.star[3]")) %>%
-    mutate(index = str_extract(parameter, "(?<=\\[)\\d+"),
-           parameter = str_remove(parameter, "\\[.*\\]")) %>%
-    mutate(index = as.integer(index)) %>%
-    pivot_wider(id_cols = parameter, names_from = index, values_from = summary) %>%
-    select(parameter, sort(setdiff(names(.), c("parameter", "NA"))), `NA`) %>%
-    rename(Intercept = `1`, Precipitation = `2`, Temperature = `3`)
-
-  # Nutrient-level parameters: weight
-  weightparam <- parameters %>%
-    filter(grepl("^weight", parameter)) %>%
-    mutate(order = rep(1:36, each=9, times = 2),
-           ntrt = rep(1:9, times = n()/9),
-           variable = rep(1:2, each = n()/2),
-           parameter = str_remove(parameter,"\\[.*")) %>%
-    pivot_wider(id_cols = c(parameter, order, variable), names_from = ntrt, values_from = summary) %>%
-    select(parameter, `9`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, everything())
-
-  # Nutrient-level parameters: year
-  yearparam <- parameters %>%
-    filter(grepl("^yr", parameter)) %>%
-    mutate(year = rep(1:3, each=9, times = 2),
-           ntrt = rep(1:9, times = n()/9),
-           variable = rep(1:2, each = n()/2),
-           parameter = str_remove(parameter,"\\[.*")) %>%
-    pivot_wider(id_cols = c(parameter, year, variable), names_from = ntrt, values_from = summary) %>%
-    select(parameter, `9`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, everything())
-
-  # Nutrient-level parameters: ntrt-level
-  ntrtparam <- parameters %>%
-    filter(grepl("^mu_a_ntrt.star|^tau_a_ntrt", parameter)) %>%
-    mutate(order = rep(1:4, times = n()/4),
-           ntrt = rep(1:9, each = 4, times = 2),
-           parameter = str_remove(parameter,"\\[.*")) %>%
-    pivot_wider(id_cols = c(parameter, order), names_from = ntrt, values_from = summary) %>%
-    select(parameter, `9`, `1`, `2`, `3`, `4`, `5`, `6`, `7`, `8`, everything()) %>%
-    bind_rows(weightparam, yearparam)
-
-  # Plot-level parameters
-  plotparam <- parameters %>%
-    filter(grepl("^a.star", parameter)) %>%
-    mutate(variable = rep(1:4, times = n()/4),
-           plot = rep(1:(n()/4), each = 4),
-           parameter = str_remove(parameter,"\\[.*")) %>%
-    pivot_wider(id_cols = c(parameter, plot), names_from = variable, values_from = summary) %>%
-    rename(Intercept = `1`, Precipitation = `2`, Temperature = `3`, AR = `4`) %>%
-    relocate(plot, .after = last_col())
-
-  # Export
-  sheet_list <- list(
-    GlobalParam = globalparam,
-    NtrtLevelParam = ntrtparam,
-    PlotLevelParam = plotparam
-  )
-
-  write_xlsx(sheet_list, path = file.path(dataout, paste0(prefix, ".xlsx")))
-  message("✔️ Processed and saved: ", prefix)
-}
-
-# Run the function over all prefixes
-walk(prefixes, process_model_output)
-
-```
-
-
-
-
