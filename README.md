@@ -8,8 +8,8 @@ A repository for code and analysis of the ecological memory of plant biomass pro
 - [Spatiotemporal extent and resolution](#Spatiotemporal-extent-and-resolution)
 - [Usage](#Usage)
 - [File naming conventions](#File-naming-conventions)
-- [Scripts](#Scripts)
 - [Data](#Data)
+- [Scripts](#Scripts)
 - [Funding Sources](#Funding-sources)
 - [Acknowledgements](#Acknowledgements)
 - [Contributors](#Contributors)
@@ -63,6 +63,62 @@ R version 4.5.1 and RStudio version 2025.05.0.
   - File names begin with either `L1_` or `L2_`, followed by `dataWrangling_DataForModels_CoarseEnv.Rmd` or `dataAnalysis_CDCRdata_Nutrient`.  
   - The latter are then appended with the treatment (`Dist`, `NoDist`, `Minus5y`) and the model type (SAM: `CoarseEnv`, lm: `Slopes`).  
   - All scripts are written as R Markdown (`.Rmd`) files.  
+
+## Data
+
+Below is the specific folder location where the file downloaded from [DRYAD](link) should be added to, and a description of the CSV file columns:
+
+### *`data/L0/da_full_010924.csv`*: 
+- family = plant family (character), 
+- species = species name (character), 
+- field = field identifier within the experiment [A, B, C] (character), 
+- year = year of sampling (double), exp = experimental identifier [1 = intact, 2 = disturbed] (double), 
+- disk = whether soil was disked or not [0 = intact, 1 = disturbed] (double), 
+- plot = plot number within a field (double), 
+- subplot = subplot identifier within a plot [Whole, East, West] (character), 
+- ntrt = numeric identifier for nutrient treatment [0 to 9] (double), 
+- other.add = indicator of whether micronutrients were added [0 = no, 1 = yes] (double), 
+- fence.origin = indicator of fenced origin [1 = fenced, NA = missing] (double), 
+- mass.above = aboveground biomass per species in g/m² (double), 
+- live = indicator that biomass represents live material [1 = live biomass, 0 = litter] (double), 
+- sorted = indicator that material was sorted by species [1 = sorted by species or genus, 2 = not sorted and usually refers to litter] (double), 
+- wood = indicator of woody species [1 = woody, 0 = non-woody] (double), 
+- functional.group = functional group code [F = forbs, L = legumes, C3 = C3 grasses, C4 = C4 grasses, S = sedges, W = woody species, G = grasses of uncertain type (e.g., Panicum spp. or mixed grass seedlings), O = other non-vascular taxa (e.g., horsetail, fungi, moss, lichen), UNKNOWN = unclassified or miscellaneous species, NA = litter] (character), duration = lifespan category [PERENNIAL, ANNUAL, NA] (character), 
+- lifeform = general lifeform category [WOODY, FORB, GRASS, LEGUME, SEDGE, HORSETAIL, FUNGI, MOSS & LICHENS, UNKNOWN, NA] (character), 
+- pathway = photosynthetic pathway [C3, C4, UNKNOWN] (character), 
+- origin = species origin [N = native, I = introduced, UNK = unknown, NA] (character).
+
+### *`data/L0/da_weather_020625.csv`*: 
+- Year = calendar year of observation (double), 
+- Month = calendar month of observation [1–12] (double), 
+- MaxTemp_C = mean monthly maximum temperature (°C) (double), 
+- MinTemp_C = mean monthly minimum temperature (°C) (double), 
+- Precip_mm = total monthly precipitation (mm) (double), 
+- PDSI = Palmer Drought Severity Index (unitless), indicating relative wetness or dryness; missing for early years [NA] (double).
+
+### *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_Dist_CoarseEnv.csv`* 
+### *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_NoDist_CoarseEnv.csv`*
+- Precip_mm = yearly mean of monthly total precipitation from 1977 to 2004 (mm) (double), 
+- MaxTemp_C = yearly mean of monthly maximum temperature from 1977 to 2004 (°C) (double).
+
+### *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_DistMinus5y_CoarseEnv.csv`* 
+### *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_NoDistMinus5y_CoarseEnv.csv`*
+- Precip_mm = yearly mean of monthly total precipitation from 1982 to 2004 (mm) (double), 
+- MaxTemp_C = yearly mean maximum temperature from 1982 to 2004 (°C) (double).
+
+### *`parameters/CoarseEnv/Dist_CoarseEnv_ParametersValues.csv`*
+### *`parameters/CoarseEnv/DistMinus5y_CoarseEnv_ParametersValues.csv`*
+### *`parameters/CoarseEnv/NoDist_CoarseEnv_ParametersValues.csv`*
+### *`parameters/CoarseEnv/NoDistMinus5y_CoarseEnv_ParametersValues.csv`*
+### *`parameters/CoarseEnv/abg/precipData_ParametersValues.csv`* 
+### *`parameters/CoarseEnv/abg/tempData_ParametersValues.csv`* 
+### *`parameters/CoarseEnv/abgMinus5y/precipData_ParametersValues.csv`* 
+### *`parameters/CoarseEnv/abgMinus5y/tempData_ParametersValues.csv`* 
+- parameter = model parameter name, including hierarchical indices (character),
+- statistics.Mean = posterior mean estimate of the parameter (double),
+- statistics.SD = posterior standard deviation of the parameter (double),
+- quantiles.2.5. = lower 2.5% quantile of the posterior distribution (double),
+- quantiles.97.5. = upper 97.5% quantile of the posterior distribution (double).
 
 ## Scripts
 
@@ -127,62 +183,6 @@ Scripts within the sub folders in `/code` are designed to be run in sequence, fr
 - **Purpose**: Format model parameter estimates outputs in a format closer to the one used in the supplemental tables.
 - **Inputs**: Model parameters in `/parameters/CoarseEnv` and `/parameters/CoarseEnv_Slopes`, climate means from `/data/L1/DataModel_CoarseEnv/climateMeans`, and icons from `/parameters/CoarseEnv/PNG`.
 - **Outputs**: Figures included in the main manuscript exported to `/figures/final`.
-
-## Data
-
-Below is the specific folder location where the file downloaded from [DRYAD](link) should be added to, and a description of the CSV file columns:
-
-### *`data/L0/da_full_010924.csv`*: 
-- family = plant family (character), 
-- species = species name (character), 
-- field = field identifier within the experiment [A, B, C] (character), 
-- year = year of sampling (double), exp = experimental identifier [1 = intact, 2 = disturbed] (double), 
-- disk = whether soil was disked or not [0 = intact, 1 = disturbed] (double), 
-- plot = plot number within a field (double), 
-- subplot = subplot identifier within a plot [Whole, East, West] (character), 
-- ntrt = numeric identifier for nutrient treatment [0 to 9] (double), 
-- other.add = indicator of whether micronutrients were added [0 = no, 1 = yes] (double), 
-- fence.origin = indicator of fenced origin [1 = fenced, NA = missing] (double), 
-- mass.above = aboveground biomass per species in g/m² (double), 
-- live = indicator that biomass represents live material [1 = live biomass, 0 = litter] (double), 
-- sorted = indicator that material was sorted by species [1 = sorted by species or genus, 2 = not sorted and usually refers to litter] (double), 
-- wood = indicator of woody species [1 = woody, 0 = non-woody] (double), 
-- functional.group = functional group code [F = forbs, L = legumes, C3 = C3 grasses, C4 = C4 grasses, S = sedges, W = woody species, G = grasses of uncertain type (e.g., Panicum spp. or mixed grass seedlings), O = other non-vascular taxa (e.g., horsetail, fungi, moss, lichen), UNKNOWN = unclassified or miscellaneous species, NA = litter] (character), duration = lifespan category [PERENNIAL, ANNUAL, NA] (character), 
-- lifeform = general lifeform category [WOODY, FORB, GRASS, LEGUME, SEDGE, HORSETAIL, FUNGI, MOSS & LICHENS, UNKNOWN, NA] (character), 
-- pathway = photosynthetic pathway [C3, C4, UNKNOWN] (character), 
-- origin = species origin [N = native, I = introduced, UNK = unknown, NA] (character).
-
-### *`data/L0/da_weather_020625.csv`*: 
-- Year = calendar year of observation (double), 
-- Month = calendar month of observation [1–12] (double), 
-- MaxTemp_C = mean monthly maximum temperature (°C) (double), 
-- MinTemp_C = mean monthly minimum temperature (°C) (double), 
-- Precip_mm = total monthly precipitation (mm) (double), 
-- PDSI = Palmer Drought Severity Index (unitless), indicating relative wetness or dryness; missing for early years [NA] (double).
-
-### *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_Dist_CoarseEnv.csv`* 
-### *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_NoDist_CoarseEnv.csv`*
-- Precip_mm = yearly mean of monthly total precipitation from 1977 to 2004 (mm) (double), 
-- MaxTemp_C = yearly mean of monthly maximum temperature from 1977 to 2004 (°C) (double).
-
-### *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_DistMinus5y_CoarseEnv.csv`* 
-### *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_NoDistMinus5y_CoarseEnv.csv`*
-- Precip_mm = yearly mean of monthly total precipitation from 1982 to 2004 (mm) (double), 
-- MaxTemp_C = yearly mean maximum temperature from 1982 to 2004 (°C) (double).
-
-### *`parameters/CoarseEnv/Dist_CoarseEnv_ParametersValues.csv`*
-### *`parameters/CoarseEnv/DistMinus5y_CoarseEnv_ParametersValues.csv`*
-### *`parameters/CoarseEnv/NoDist_CoarseEnv_ParametersValues.csv`*
-### *`parameters/CoarseEnv/NoDistMinus5y_CoarseEnv_ParametersValues.csv`*
-### *`parameters/CoarseEnv/abg/precipData_ParametersValues.csv`* 
-### *`parameters/CoarseEnv/abg/tempData_ParametersValues.csv`* 
-### *`parameters/CoarseEnv/abgMinus5y/precipData_ParametersValues.csv`* 
-### *`parameters/CoarseEnv/abgMinus5y/tempData_ParametersValues.csv`* 
-- parameter = model parameter name, including hierarchical indices (character),
-- statistics.Mean = posterior mean estimate of the parameter (double),
-- statistics.SD = posterior standard deviation of the parameter (double),
-- quantiles.2.5. = lower 2.5% quantile of the posterior distribution (double),
-- quantiles.97.5. = upper 97.5% quantile of the posterior distribution (double).
 
 ## Funding Sources
 
