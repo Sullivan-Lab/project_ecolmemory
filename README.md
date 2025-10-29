@@ -17,7 +17,7 @@ A repository for code and analysis of the ecological memory of plant biomass pro
 
 ## Introduction
 
-This repository allows readers to run models to reproduce results and figures of the paper "Ecological memory mediates plant biomass response to multiple global change drivers", currently submitted to *Ecology Letters*.
+This repository allows readers to run models to reproduce results and figures of the paper "Eutrophication and one-time physical disturbance mediate ecological memory of plant biomass", currently submitted to *Ecology Letters*.
 
 ## Workflow
 
