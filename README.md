@@ -68,61 +68,61 @@ R version 4.5.1 and RStudio version 2025.05.0.
 
 Scripts within the sub folders in `/code` are designed to be run in sequence, from `L1_*` to `L2_*` (these in alphabetical order). However, the script in `L2_Figures` is a stand alone one if needed (see details under **Instructions** in [Workflow](#Workflow)).
 
-### [*`L1_dataWrangling_DataForModels_CoarseEnv.Rmd`*]
+### *`L1_dataWrangling_DataForModels_CoarseEnv.Rmd`*
 
 - **Purpose**: Process data to be used in the models.
 - **Inputs**: Raw data files in `/data/L0` folder.
 - **Outputs**: Processed data files in `/data/L1/DataModel_CoarseEnv`.
 
-### [*`L2_dataAnalysis_CDCRdata_Nutrient_Dist_CoarseEnv.Rmd`*]
+### *`L2_dataAnalysis_CDCRdata_Nutrient_Dist_CoarseEnv.Rmd`*
 
 - **Purpose**: Runs SAM model for Disturbed plots including all years of data.
 - **Inputs**: Processed data files in `/data/L1/DataModel_CoarseEnv`.
 - **Outputs**: Model assessment figures in `figures`; two CSV files with model parameters, and `.RData` file containing all the model input and output data, a pdf with the trace plots of selected parameters in `/parameters/CoarseEnv`.
 
-### [*`L2_dataAnalysis_CDCRdata_Nutrient_DistMinus5y_CoarseEnv.Rmd`*]
+### *`L2_dataAnalysis_CDCRdata_Nutrient_DistMinus5y_CoarseEnv.Rmd`*
 
 - **Purpose**: Runs SAM model for Disturbed plots excluding the first 5 years of data.
 - **Inputs**: Processed data files in `/data/L1/DataModel_CoarseEnv`.
 - **Outputs**: Model assessment figures in `figures`; two CSV files with model parameters, and `.RData` file containing all the model input and output data, a pdf with the trace plots of selected parameters in `/parameters/CoarseEnv`.
 
-### [*`L2_dataAnalysis_CDCRdata_Nutrient_NoDist_CoarseEnv.Rmd`*]
+### *`L2_dataAnalysis_CDCRdata_Nutrient_NoDist_CoarseEnv.Rmd`*
 
 - **Purpose**: Runs SAM model for Intact plots including all years of data.
 - **Inputs**: Processed data files in `/data/L1/DataModel_CoarseEnv`.
 - **Outputs**: Model assessment figures in `figures`; two CSV files with model parameters, and `.RData` file containing all the model input and output data, a pdf with the trace plots of selected parameters in `/parameters/CoarseEnv`.
 
-### [*`L2_dataAnalysis_CDCRdata_Nutrient_NoDistMinus5y_CoarseEnv.Rmd`*]
+### *`L2_dataAnalysis_CDCRdata_Nutrient_NoDistMinus5y_CoarseEnv.Rmd`*
 
 - **Purpose**: Runs SAM model for Intact plots excluding the first 5 years of data.
 - **Inputs**: Processed data files in `/data/L1/DataModel_CoarseEnv`.
 - **Outputs**: Model assessment figures in `figures`; two CSV files with model parameters, and `.RData` file containing all the model input and output data, a pdf with the trace plots of selected parameters in `/parameters/CoarseEnv`.
 
-### [*`L2_dataAnalysis_CDCRdata_Nutrient_DistAndNoDist_CoarseEnv_Slopes.Rmd`*]
+### *`L2_dataAnalysis_CDCRdata_Nutrient_DistAndNoDist_CoarseEnv_Slopes.Rmd`*
 
 - **Purpose**: Runs a linear model to estimate the relationship between the strength of precipitation and maximum temperature effects as a function of nutrient addition levels, across treatments and including all years of data.
 - **Inputs**: SAM model outputs in `/parameters/CoarseEnv`.
 - **Outputs**: Model assessment figures in `figures`; a CSV file with model parameters, and `.RData` file containing all the model input and output data, a pdf with the trace plots of selected parameters in `/parameters/CoarseEnv_Slopes/abg`.
 
-### [*`L2_dataAnalysis_CDCRdata_Nutrient_DistAndNoDist_CoarseEnv_Slopes.Rmd`*]
+### *`L2_dataAnalysis_CDCRdata_Nutrient_DistAndNoDist_CoarseEnv_Slopes.Rmd`*
 
 - **Purpose**: Runs a linear model to estimate the relationship between the strength of precipitation and maximum temperature effects as a function of nutrient addition levels, across treatments and excluding the first 5 years of data.
 - **Inputs**: SAM model outputs in `/parameters/CoarseEnv`.
 - **Outputs**: Model assessment figures in `figures`; a CSV file with model parameters, and `.RData` file containing all the model input and output data, a pdf with the trace plots of selected parameters in `/parameters/CoarseEnv_Slopes/abgMinus5y`.
 
-### [*`L2_dataAnalysis_CDCRdata_SuppTable.Rmd`*]
+### *`L2_dataAnalysis_CDCRdata_SuppTable.Rmd`*
 
 - **Purpose**: Format model parameter estimates outputs in a format closer to the one used in the supplemental tables.
 - **Inputs**: SAM model outputs in `/parameters/CoarseEnv`.
 - **Outputs**: Excel files with model parameters a bit more ready to go to the supplement `/parameters/SuppTable`.
 
-### [*`L2_dataAnalysis_CDCRdata_Nutrient_AllDist_Calc_CoarseEnv.Rmd`*]
+### *`L2_dataAnalysis_CDCRdata_Nutrient_AllDist_Calc_CoarseEnv.Rmd`*
 
 - **Purpose**: Perform calculations on effects based on estimated model parameters to add to the results section.
 - **Inputs**: SAM model outputs in `/parameters/CoarseEnv` and `/parameters/CoarseEnv_Slopes`.
 - **Outputs**: Nothing is exported, all values are displayed in the Console when code is run.
 
-### [*`L2_dataAnalysis_CDCRdata_Nutrient_AllDist_Figures_AllCoarseEnv_LiveBiomassOnly.Rmd`*]
+### *`L2_dataAnalysis_CDCRdata_Nutrient_AllDist_Figures_AllCoarseEnv_LiveBiomassOnly.Rmd`*
 
 - **Purpose**: Format model parameter estimates outputs in a format closer to the one used in the supplemental tables.
 - **Inputs**: Model parameters in `/parameters/CoarseEnv` and `/parameters/CoarseEnv_Slopes`, climate means from `/data/L1/DataModel_CoarseEnv/climateMeans`, and icons from `/parameters/CoarseEnv/PNG`.
@@ -132,7 +132,9 @@ Scripts within the sub folders in `/code` are designed to be run in sequence, fr
 
 Below is the specific folder location where the file downloaded from [DRYAD](link) should be added to, and a description of the CSV file columns:
 
-### [*`data/L0/file.csv`*]: 
+### *`data/L0/da_full_010924.csv`*: family = plant family (character), species = species name (character), field = field identifier within the experiment [A, B, C] (character), year = year of sampling (double), exp = experimental identifier [1 = intact, 2 = disturbed] (double), disk = whether soil was disked or not [0 = intact, 1 = disturbed] (double), plot = plot number within a field (double), subplot = subplot identifier within a plot [Whole, East, West] (character), ntrt = numeric identifier for nutrient treatment [0 to 9] (double), other.add = indicator of whether micronutrients were added [0 = no, 1 = yes] (double), fence.origin = indicator of fenced origin [1 = fenced, NA = missing] (double), mass.above = aboveground mass per species in g/m² (double), live = indicator that biomass represents live material [1 = live biomass, 0 = litter] (double), sorted = indicator that material was sorted by species [1 = sorted by species or genus, 2 = not sorted and usually refers to litter] (double), wood = indicator of woody species [1 = woody, 0 = non-woody] (double), functional.group = functional group code [F = forbs, L = legumes, C3 = C3 grasses, C4 = C4 grasses, S = sedges, W = woody species, G = grasses of uncertain type (e.g., Panicum spp. or mixed grass seedlings), O = other non-vascular taxa (e.g., horsetail, fungi, moss, lichen), UNKNOWN = unclassified or miscellaneous species, NA = litter] (character), duration = lifespan category [PERENNIAL, ANNUAL, NA] (character), lifeform = general lifeform category [WOODY, FORB, GRASS, LEGUME, SEDGE, HORSETAIL, FUNGI, MOSS & LICHENS, UNKNOWN, NA] (character), pathway = photosynthetic pathway [C3, C4, UNKNOWN] (character), origin = species origin [N = native, I = introduced, UNK = unknown, NA] (character).
+
+### *`data/L0/da_weather_020625.csv`*: Year = calendar year of observation (double), Month = calendar month of observation [1–12] (double), MaxTemp_C = mean monthly maximum temperature (°C) (double), MinTemp_C = mean monthly minimum temperature (°C) (double), Precip_mm = total monthly precipitation (mm) (double), PDSI = Palmer Drought Severity Index (unitless), indicating relative wetness or dryness; missing for early years (double).
 
 ## Funding Sources
 
