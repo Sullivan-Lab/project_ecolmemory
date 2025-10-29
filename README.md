@@ -45,7 +45,7 @@ All CSV files needed to run this code can be found in [DRYAD](link).
 
 - Spatial extent: Cedar Creek Ecosystem Science Reserve in Minnesota, US
 - Spatial resolution: two experiments (E001, E002) within the Reserve
-- Temporal extent: 1982-2004 (plant data), 1982-2023 (weather data)
+- Temporal extent: 1982-2004 (plant data), 1963-2023 (weather data)
 - Temporal resolution: yearly plant biomass data, monthly average temperature, and monthly maximum temperature data
 
 ## Usage
