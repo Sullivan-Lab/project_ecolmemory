@@ -207,4 +207,4 @@ Plant data has been collected since 1982 at [Cedar Creek Ecosystem Science Reser
 
 ## Contact Information
 
-Please contact Laís Petri at petrila1<at>msu.edu re: questions about the scripts and data.
+Please contact Laís Petri at petrila1@msu.edu re: questions about the scripts and data.
