@@ -52,7 +52,7 @@ All CSV files needed to run this code can be found in [DRYAD](link).
 
 R version 4.5.1 and RStudio version 2025.05.0. 
 
-### File Naming Conventions
+## File Naming Conventions
 
 - **Data Files**:  
   - Files in `/L0` do not follow a naming convention.  
