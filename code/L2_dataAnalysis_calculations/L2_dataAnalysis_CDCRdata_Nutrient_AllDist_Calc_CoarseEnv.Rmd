@@ -100,26 +100,26 @@ Importing datasets: predictions of effect vs ntrt quantity
 ```{r}
 ## All years
 # Preciptation
-precip.pred <- read_csv(file.path(workingdir,"parameters/CoarseEnv_Slopes/abg/precipData_ParametersValues.csv")) %>% 
+precip.pred <- read_csv(file.path(workingdir,"parameters/CoarseEnv_Slopes/abg/precipData_allYears_ParametersValues.csv")) %>% 
   mutate(alpha=2,
          dur = 1)
 glimpse(precip.pred)
 
 # temperature
-temp.pred <- read_csv(file.path(workingdir,"parameters/CoarseEnv_Slopes/abg/tempData_ParametersValues.csv")) %>% 
+temp.pred <- read_csv(file.path(workingdir,"parameters/CoarseEnv_Slopes/abg/tempData_allYears_ParametersValues.csv")) %>% 
   mutate(alpha=3,
          dur = 1)
 glimpse(temp.pred)
 
 ## Minus5y
 # Preciptation
-precip.pred2 <- read_csv(file.path(workingdir,"parameters/CoarseEnv_Slopes/abgMinus5y/precipData_ParametersValues.csv")) %>% 
+precip.pred2 <- read_csv(file.path(workingdir,"parameters/CoarseEnv_Slopes/abgMinus5y/precipData_Minus5y_ParametersValues.csv")) %>% 
   mutate(alpha=2,
          dur = 2)
 glimpse(precip.pred2)
 
 # temperature
-temp.pred2 <- read_csv(file.path(workingdir,"parameters/CoarseEnv_Slopes/abgMinus5y/tempData_ParametersValues.csv")) %>% 
+temp.pred2 <- read_csv(file.path(workingdir,"parameters/CoarseEnv_Slopes/abgMinus5y/tempData_Minus5y_ParametersValues.csv")) %>% 
   mutate(alpha=3,
          dur = 2)
 glimpse(temp.pred2)

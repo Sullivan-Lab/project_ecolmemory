@@ -59,13 +59,13 @@ ntrt_qtt <- tibble(ntrt = c(1:9),
                        ntrt_qtt = c(0.0,1.0,2.0,3.4,5.4,9.5,17.0,27.2,0))
 
 dataList <- list(
-  tempData = NoDist_mu_ntrt %>% 
+  tempData_allYears = NoDist_mu_ntrt %>% 
     filter(alpha == 3) %>% 
     bind_rows(filter(Dist_mu_ntrt, alpha == 3)) %>% 
     mutate(ntrt = rep(1:9, times = 2)) %>% 
     left_join(ntrt_qtt),
 
-  precipData = NoDist_mu_ntrt %>% 
+  precipData_allYears = NoDist_mu_ntrt %>% 
     filter(alpha == 2) %>% 
     bind_rows(filter(Dist_mu_ntrt, alpha == 2)) %>% 
     mutate(ntrt = rep(1:9, times = 2)) %>% 

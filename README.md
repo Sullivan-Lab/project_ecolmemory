@@ -117,10 +117,10 @@ Below is the specific folder location where the file downloaded from [DRYAD](lin
 - *`parameters/CoarseEnv/DistMinus5y_CoarseEnv_ParametersValues.csv`*
 - *`parameters/CoarseEnv/NoDist_CoarseEnv_ParametersValues.csv`*
 - *`parameters/CoarseEnv/NoDistMinus5y_CoarseEnv_ParametersValues.csv`*
-- *`parameters/CoarseEnv/abg/precipData_ParametersValues.csv`* 
-- *`parameters/CoarseEnv/abg/tempData_ParametersValues.csv`* 
-- *`parameters/CoarseEnv/abgMinus5y/precipData_ParametersValues.csv`*
-- *`parameters/CoarseEnv/abgMinus5y/tempData_ParametersValues.csv`* 
+- *`parameters/CoarseEnv/abg/precipData_allYears_ParametersValues.csv`* 
+- *`parameters/CoarseEnv/abg/tempData_allYears_ParametersValues.csv`* 
+- *`parameters/CoarseEnv/abgMinus5y/precipData_Minus5y_ParametersValues.csv`*
+- *`parameters/CoarseEnv/abgMinus5y/tempData_Minus5y_ParametersValues.csv`* 
 
 #### Columns:
 - parameter = model parameter name, including hierarchical indices (character),
