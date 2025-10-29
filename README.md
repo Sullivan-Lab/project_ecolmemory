@@ -152,7 +152,25 @@ Below is the specific folder location where the file downloaded from [DRYAD](lin
 - pathway = photosynthetic pathway [C3, C4, UNKNOWN] (character), 
 - origin = species origin [N = native, I = introduced, UNK = unknown, NA] (character).
 
-### *`data/L0/da_weather_020625.csv`*: Year = calendar year of observation (double), Month = calendar month of observation [1–12] (double), MaxTemp_C = mean monthly maximum temperature (°C) (double), MinTemp_C = mean monthly minimum temperature (°C) (double), Precip_mm = total monthly precipitation (mm) (double), PDSI = Palmer Drought Severity Index (unitless), indicating relative wetness or dryness; missing for early years (double).
+### *`data/L0/da_weather_020625.csv`*: 
+- Year = calendar year of observation (double), 
+- Month = calendar month of observation [1–12] (double), 
+- MaxTemp_C = mean monthly maximum temperature (°C) (double), 
+- MinTemp_C = mean monthly minimum temperature (°C) (double), 
+- Precip_mm = total monthly precipitation (mm) (double), 
+- PDSI = Palmer Drought Severity Index (unitless), indicating relative wetness or dryness; missing for early years [NA] (double).
+
+### *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_Dist_CoarseEnv.csv`* AND *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_NoDist_CoarseEnv.csv`*
+- Precip_mm = yearly mean of monthly total precipitation from 1977 to 2004 (mm) (double), 
+- MaxTemp_C = yearly mean of monthly maximum temperature from 1977 to 2004 (°C) (double).
+
+### *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_DistMinus5y_CoarseEnv.csv`* AND *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_NoDistMinus5y_CoarseEnv.csv`*
+- Precip_mm = yearly mean of monthly total precipitation from 1982 to 2004 (mm) (double), 
+- MaxTemp_C = yearly mean maximum temperature from 1982 to 2004 (°C) (double).
+
+Files with ending of "_ParametersValues.csv"
+### *`parameters/CoarseEnv/Dist_CoarseEnv_ParametersValues.csv`*
+
 
 ## Funding Sources
 
