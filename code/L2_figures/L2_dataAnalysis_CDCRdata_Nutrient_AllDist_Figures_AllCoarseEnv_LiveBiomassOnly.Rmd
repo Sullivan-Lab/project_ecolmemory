@@ -1460,16 +1460,17 @@ Globalmodelpar<- parameters_All %>%
   filter(grepl("^mu_a.star\\[\\d+\\]$",parameter)) %>% 
   mutate(alpha = rep(2:3,times=4),
          filling=ifelse(`quantiles.2.5.`<0&`quantiles.97.5.`<0|                                                              `quantiles.2.5.`>0&`quantiles.97.5.`>0, "black","white"),
+         filling = ifelse(exp==1&dur==1, "black", filling),
          shape=ifelse(exp==1&dur==1,21,
-                      ifelse(exp==2&dur==1,24,22))) %>% 
+                      ifelse(exp==2&dur==1,21,22))) %>% 
   mutate(statistics.Mean = ifelse(alpha==1, statistics.Mean*clim.means$Precip_mm, statistics.Mean*clim.means$MaxTemp_C),
          quantiles.2.5. = ifelse(alpha==1, quantiles.2.5.*clim.means$Precip_mm, quantiles.2.5.*clim.means$MaxTemp_C),
-         quantiles.97.5. = ifelse(alpha==1, quantiles.97.5.*clim.means$Precip_mm, quantiles.97.5.*clim.means$MaxTemp_C))
+         quantiles.97.5. = ifelse(alpha==1, quantiles.97.5.*clim.means$Precip_mm, quantiles.97.5.*clim.means$MaxTemp_C)) 
 dodge_width <- 0.5
 
 
 
-a<- 
+a<-
   Globalmodelpar %>% 
   filter(alpha==2 & biomass==1) %>% 
   ggplot(aes(x=exp,y=`statistics.Mean`,
@@ -1485,8 +1486,8 @@ a<-
                  size=3,
              position=position_dodge(width=dodge_width)
              )+
-  scale_shape_manual(values = c(21,22,24),
-                     labels = c("All years - Intact","All years - Disturbed","Without transient\n community")) +
+  scale_shape_manual(values = c(21,22),
+                     labels = c("All years","Without transient\n community")) +
   scale_fill_manual(values = c("black","white")) +
   ylab("Standardized coefficient\neffects on live biomass \n(posterior mean ± 95% CIs)")+
   xlab(NULL)+
@@ -1514,8 +1515,8 @@ a<-
         plot.margin = margin(t = 5, r = 5, b = 5, l = 5),
         plot.title = element_text(face = "bold", hjust = 0.5, size = 14)) +
   guides(shape = guide_legend(override.aes = list(alpha=1,size=2,
-                                                  shape=c(19,17,15),
-                                                  color=c("black","black","black"))),
+                                                  shape=c(19,17),
+                                                  color=c("black","black"))),
          fill = "none")
 
 b<-
@@ -1534,8 +1535,8 @@ b<-
                  size=3,
              position=position_dodge(width=dodge_width)
              )+
-  scale_shape_manual(values = c(21,22,24),
-                     labels = c("All years - Intact","All years - Disturbed","Without transient\n community")) +
+  scale_shape_manual(values = c(21,22),
+                     labels = c("All years","Without transient\n community")) +
   scale_fill_manual(values = c("black","white")) +
   ylab("Standardized coefficient\neffects on live biomass \n(posterior mean ± 95% CIs)")+
   xlab(NULL)+
@@ -1564,18 +1565,17 @@ b<-
         plot.margin = margin(t = 5, r = 5, b = 5, l = 5),
         plot.title = element_text(face = "bold", hjust = 0.5, size = 14)) +
   guides(shape = guide_legend(override.aes = list(alpha=1,size=2,
-                                                  shape=c(19,17,15),
-                                                  color=c("black","black","black"))),
+                                                  shape=c(19,17),
+                                                  color=c("black","black"))),
          fill = "none")
 
 final_a <- ggdraw(a) +
-  draw_label("a)", x = 0.270, y = 0.850, size = 10, fontface = "bold", hjust = 0, vjust = 1) 
+  draw_label("a)", x = 0.270, y = 0.850, size = 10, fontface = "bold", hjust = 0, vjust = 1)
 final_a
 
 final_b <- ggdraw(b) +
   draw_label("b)", x = 0.165, y = 0.850, size = 10, fontface = "bold", hjust = 0, vjust = 1)
 
-final_b
 ```
 
 Merge plots
