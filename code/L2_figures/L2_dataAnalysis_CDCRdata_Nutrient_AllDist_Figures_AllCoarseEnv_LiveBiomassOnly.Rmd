@@ -442,7 +442,7 @@ a<-
     annotate("text", x = 18.5, y = -0.58, label = "y-1", color = "gray30", fontface = "bold", size = 3.5) + 
     annotate("text", x = 30.5, y = -0.58, label = "y-2", color = "gray30", fontface = "bold", size = 3.5) +
   geom_text(data = filter(WEIGHTMomodelpar, ntrt %in% c(9)),  #WEIGHTMomodelpar,
-               aes(x = 6.5, y = 0.225), inherit.aes = FALSE, label = "Precipitation", color = "black", size = 5, fontface = "bold")+
+               aes(x = 9.5, y = 0.225), inherit.aes = FALSE, label = "a) Precipitation", color = "black", size = 5, fontface = "bold")+
   theme_facet2+
   theme(legend.position = "top",
         legend.title = element_blank(),
@@ -499,7 +499,7 @@ b<-
     annotate("text", x = 18.5, y = -0.56, label = "y-1", color = "gray30", fontface = "bold", size = 3.5) + 
     annotate("text", x = 30.5, y = -0.56, label = "y-2", color = "gray30", fontface = "bold", size = 3.5) +
   geom_text(data = filter(WEIGHTMomodelpar, ntrt %in% c(9)),  #WEIGHTMomodelpar,
-               aes(x = 6.5, y = 0.240), inherit.aes = FALSE, label = "Temperature", color = "black", size = 5, fontface = "bold")+
+               aes(x = 9.5, y = 0.240), inherit.aes = FALSE, label = "b) Temperature", color = "black", size = 5, fontface = "bold")+
   theme_facet2+
   theme(legend.position = "none",
         legend.title = element_blank(),
