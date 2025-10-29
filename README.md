@@ -132,7 +132,25 @@ Scripts within the sub folders in `/code` are designed to be run in sequence, fr
 
 Below is the specific folder location where the file downloaded from [DRYAD](link) should be added to, and a description of the CSV file columns:
 
-### *`data/L0/da_full_010924.csv`*: family = plant family (character), species = species name (character), field = field identifier within the experiment [A, B, C] (character), year = year of sampling (double), exp = experimental identifier [1 = intact, 2 = disturbed] (double), disk = whether soil was disked or not [0 = intact, 1 = disturbed] (double), plot = plot number within a field (double), subplot = subplot identifier within a plot [Whole, East, West] (character), ntrt = numeric identifier for nutrient treatment [0 to 9] (double), other.add = indicator of whether micronutrients were added [0 = no, 1 = yes] (double), fence.origin = indicator of fenced origin [1 = fenced, NA = missing] (double), mass.above = aboveground mass per species in g/m² (double), live = indicator that biomass represents live material [1 = live biomass, 0 = litter] (double), sorted = indicator that material was sorted by species [1 = sorted by species or genus, 2 = not sorted and usually refers to litter] (double), wood = indicator of woody species [1 = woody, 0 = non-woody] (double), functional.group = functional group code [F = forbs, L = legumes, C3 = C3 grasses, C4 = C4 grasses, S = sedges, W = woody species, G = grasses of uncertain type (e.g., Panicum spp. or mixed grass seedlings), O = other non-vascular taxa (e.g., horsetail, fungi, moss, lichen), UNKNOWN = unclassified or miscellaneous species, NA = litter] (character), duration = lifespan category [PERENNIAL, ANNUAL, NA] (character), lifeform = general lifeform category [WOODY, FORB, GRASS, LEGUME, SEDGE, HORSETAIL, FUNGI, MOSS & LICHENS, UNKNOWN, NA] (character), pathway = photosynthetic pathway [C3, C4, UNKNOWN] (character), origin = species origin [N = native, I = introduced, UNK = unknown, NA] (character).
+### *`data/L0/da_full_010924.csv`*: 
+- family = plant family (character), 
+- species = species name (character), 
+- field = field identifier within the experiment [A, B, C] (character), 
+- year = year of sampling (double), exp = experimental identifier [1 = intact, 2 = disturbed] (double), 
+- disk = whether soil was disked or not [0 = intact, 1 = disturbed] (double), 
+- plot = plot number within a field (double), 
+- subplot = subplot identifier within a plot [Whole, East, West] (character), 
+- ntrt = numeric identifier for nutrient treatment [0 to 9] (double), 
+- other.add = indicator of whether micronutrients were added [0 = no, 1 = yes] (double), 
+- fence.origin = indicator of fenced origin [1 = fenced, NA = missing] (double), 
+- mass.above = aboveground biomass per species in g/m² (double), 
+- live = indicator that biomass represents live material [1 = live biomass, 0 = litter] (double), 
+- sorted = indicator that material was sorted by species [1 = sorted by species or genus, 2 = not sorted and usually refers to litter] (double), 
+- wood = indicator of woody species [1 = woody, 0 = non-woody] (double), 
+- functional.group = functional group code [F = forbs, L = legumes, C3 = C3 grasses, C4 = C4 grasses, S = sedges, W = woody species, G = grasses of uncertain type (e.g., Panicum spp. or mixed grass seedlings), O = other non-vascular taxa (e.g., horsetail, fungi, moss, lichen), UNKNOWN = unclassified or miscellaneous species, NA = litter] (character), duration = lifespan category [PERENNIAL, ANNUAL, NA] (character), 
+- lifeform = general lifeform category [WOODY, FORB, GRASS, LEGUME, SEDGE, HORSETAIL, FUNGI, MOSS & LICHENS, UNKNOWN, NA] (character), 
+- pathway = photosynthetic pathway [C3, C4, UNKNOWN] (character), 
+- origin = species origin [N = native, I = introduced, UNK = unknown, NA] (character).
 
 ### *`data/L0/da_weather_020625.csv`*: Year = calendar year of observation (double), Month = calendar month of observation [1–12] (double), MaxTemp_C = mean monthly maximum temperature (°C) (double), MinTemp_C = mean monthly minimum temperature (°C) (double), Precip_mm = total monthly precipitation (mm) (double), PDSI = Palmer Drought Severity Index (unitless), indicating relative wetness or dryness; missing for early years (double).
 
