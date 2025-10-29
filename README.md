@@ -68,7 +68,7 @@ R version 4.5.1 and RStudio version 2025.05.0.
 
 Below is the specific folder location where the file downloaded from [DRYAD](link) should be added to, and a description of the CSV file columns:
 
-### *`data/L0/da_full_010924.csv`*: 
+### *1. `data/L0/da_full_010924.csv`*: 
 - family = plant family (character), 
 - species = species name (character), 
 - field = field identifier within the experiment [A, B, C] (character), 
@@ -88,7 +88,7 @@ Below is the specific folder location where the file downloaded from [DRYAD](lin
 - pathway = photosynthetic pathway [C3, C4, UNKNOWN] (character), 
 - origin = species origin [N = native, I = introduced, UNK = unknown, NA] (character).
 
-### *`data/L0/da_weather_020625.csv`*: 
+### *2. `data/L0/da_weather_020625.csv`*: 
 - Year = calendar year of observation (double), 
 - Month = calendar month of observation [1–12] (double), 
 - MaxTemp_C = mean monthly maximum temperature (°C) (double), 
@@ -96,72 +96,33 @@ Below is the specific folder location where the file downloaded from [DRYAD](lin
 - Precip_mm = total monthly precipitation (mm) (double), 
 - PDSI = Palmer Drought Severity Index (unitless), indicating relative wetness or dryness; missing for early years [NA] (double).
 
-### *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_Dist_CoarseEnv.csv`* 
-- Precip_mm = yearly mean of monthly total precipitation from 1977 to 2004 (mm) (double), 
-- MaxTemp_C = yearly mean of monthly maximum temperature from 1977 to 2004 (°C) (double).
+### *3. Climate means files*
+#### Files:
+- *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_Dist_CoarseEnv.csv`* 
+- *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_NoDist_CoarseEnv.csv`*
+- *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_DistMinus5y_CoarseEnv.csv`*
+- *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_NoDistMinus5y_CoarseEnv.csv`*
 
-### *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_NoDist_CoarseEnv.csv`*
-- Precip_mm = yearly mean of monthly total precipitation from 1977 to 2004 (mm) (double), 
-- MaxTemp_C = yearly mean of monthly maximum temperature from 1977 to 2004 (°C) (double).
+#### Columns:
+- Precip_mm = mean annual precipitation (mm) (double),
+- MaxTemp_C = mean annual maximum temperature (°C) (double).
 
-### *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_DistMinus5y_CoarseEnv.csv`* 
-- Precip_mm = yearly mean of monthly total precipitation from 1982 to 2004 (mm) (double), 
-- MaxTemp_C = yearly mean maximum temperature from 1982 to 2004 (°C) (double).
+#### Periods:
+- 1977–2004 for `Dist` and `NoDist`
+- 1982–2004 for `DistMinus5y` and `NoDistMinus5y`
 
-### *`data/L1/DataModel_CoarseEnv/climateMeans/clim.means_NoDistMinus5y_CoarseEnv.csv`*
-- Precip_mm = yearly mean of monthly total precipitation from 1982 to 2004 (mm) (double), 
-- MaxTemp_C = yearly mean maximum temperature from 1982 to 2004 (°C) (double).
+### *4. Model parameter files* 
+#### Files:
+- *`parameters/CoarseEnv/Dist_CoarseEnv_ParametersValues.csv`*
+- *`parameters/CoarseEnv/DistMinus5y_CoarseEnv_ParametersValues.csv`*
+- *`parameters/CoarseEnv/NoDist_CoarseEnv_ParametersValues.csv`*
+- *`parameters/CoarseEnv/NoDistMinus5y_CoarseEnv_ParametersValues.csv`*
+- *`parameters/CoarseEnv/abg/precipData_ParametersValues.csv`* 
+- *`parameters/CoarseEnv/abg/tempData_ParametersValues.csv`* 
+- *`parameters/CoarseEnv/abgMinus5y/precipData_ParametersValues.csv`*
+- *`parameters/CoarseEnv/abgMinus5y/tempData_ParametersValues.csv`* 
 
-### *`parameters/CoarseEnv/Dist_CoarseEnv_ParametersValues.csv`*
-- parameter = model parameter name, including hierarchical indices (character),
-- statistics.Mean = posterior mean estimate of the parameter (double),
-- statistics.SD = posterior standard deviation of the parameter (double),
-- quantiles.2.5. = lower 2.5% quantile of the posterior distribution (double),
-- quantiles.97.5. = upper 97.5% quantile of the posterior distribution (double).
-
-### *`parameters/CoarseEnv/DistMinus5y_CoarseEnv_ParametersValues.csv`*
-- parameter = model parameter name, including hierarchical indices (character),
-- statistics.Mean = posterior mean estimate of the parameter (double),
-- statistics.SD = posterior standard deviation of the parameter (double),
-- quantiles.2.5. = lower 2.5% quantile of the posterior distribution (double),
-- quantiles.97.5. = upper 97.5% quantile of the posterior distribution (double).
-
-### *`parameters/CoarseEnv/NoDist_CoarseEnv_ParametersValues.csv`*
-- parameter = model parameter name, including hierarchical indices (character),
-- statistics.Mean = posterior mean estimate of the parameter (double),
-- statistics.SD = posterior standard deviation of the parameter (double),
-- quantiles.2.5. = lower 2.5% quantile of the posterior distribution (double),
-- quantiles.97.5. = upper 97.5% quantile of the posterior distribution (double).
-
-### *`parameters/CoarseEnv/NoDistMinus5y_CoarseEnv_ParametersValues.csv`*
-- parameter = model parameter name, including hierarchical indices (character),
-- statistics.Mean = posterior mean estimate of the parameter (double),
-- statistics.SD = posterior standard deviation of the parameter (double),
-- quantiles.2.5. = lower 2.5% quantile of the posterior distribution (double),
-- quantiles.97.5. = upper 97.5% quantile of the posterior distribution (double).
-
-### *`parameters/CoarseEnv/abg/precipData_ParametersValues.csv`* 
-- parameter = model parameter name, including hierarchical indices (character),
-- statistics.Mean = posterior mean estimate of the parameter (double),
-- statistics.SD = posterior standard deviation of the parameter (double),
-- quantiles.2.5. = lower 2.5% quantile of the posterior distribution (double),
-- quantiles.97.5. = upper 97.5% quantile of the posterior distribution (double).
-
-### *`parameters/CoarseEnv/abg/tempData_ParametersValues.csv`* 
-- parameter = model parameter name, including hierarchical indices (character),
-- statistics.Mean = posterior mean estimate of the parameter (double),
-- statistics.SD = posterior standard deviation of the parameter (double),
-- quantiles.2.5. = lower 2.5% quantile of the posterior distribution (double),
-- quantiles.97.5. = upper 97.5% quantile of the posterior distribution (double).
-
-### *`parameters/CoarseEnv/abgMinus5y/precipData_ParametersValues.csv`* 
-- parameter = model parameter name, including hierarchical indices (character),
-- statistics.Mean = posterior mean estimate of the parameter (double),
-- statistics.SD = posterior standard deviation of the parameter (double),
-- quantiles.2.5. = lower 2.5% quantile of the posterior distribution (double),
-- quantiles.97.5. = upper 97.5% quantile of the posterior distribution (double).
-
-### *`parameters/CoarseEnv/abgMinus5y/tempData_ParametersValues.csv`* 
+#### Columns:
 - parameter = model parameter name, including hierarchical indices (character),
 - statistics.Mean = posterior mean estimate of the parameter (double),
 - statistics.SD = posterior standard deviation of the parameter (double),
