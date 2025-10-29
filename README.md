@@ -8,7 +8,8 @@ A repository for code and analysis of the ecological memory of plant biomass pro
 - [Spatiotemporal extent and resolution](#Spatiotemporal-extent-and-resolution)
 - [Usage](#Usage)
 - [File naming conventions](#File-naming-conventions)
-- [License](#License)
+- [Scripts](#Scripts)
+- [Data](#Data)
 - [Funding Sources](#Funding-sources)
 - [Acknowledgements](#Acknowledgements)
 - [Contributors](#Contributors)
@@ -24,9 +25,15 @@ This repository is organized in to four main folders:
 - **`code`:** contains folders for wrangling the data to generate data files for analysis (`/L1_dataWrangling_DataForModels`), run the analysis (`/L2_dataAnalysis`), perform calculations based on model estimates (`/L2_dataAnalysis_calculations`), and generate the figures present in the main paper (`/L2_figures`).
 - **`data`:** contains a folder for raw data (`/L0`) and one for processed data to be used to run the analysis (`/L1`).
 - **`figures`:** contains all the figures included in the paper (main `/final` and supplement), but all of them can be generated from the code in this repository.
-- **`parameters`:** 
+- **`parameters`:** contains a folder per model type (SAM models `/CoarseEnv`, linear model `/CoarseEnv_Slopes`), and a folder for supplemental data formatted more closely to how it is displayed in the supplement (`/SuppTable`)
 
-After cloning this repository, downloaded the data from [DRYAD](link) and paste the files in their respective folders (specifications can be found here). Then, run the code. The data files in the appropriate structure needed to run the models can be (and should be) generated from this repository to then run the models. Be aware that these models are complex and running them might take days. All figures present in the manuscript can be generated *without* running the models by using the files present in [DRYAD](link). 
+Instructions:
+- Clone this repository.
+- Download the data from [DRYAD](link) and place the files in their respective folders (see folder structure specifications [here](#Data).
+- Run the code to generate the data files in the structure required to fit the models.
+- These structured data files are produced from this repository and are necessary to run the models.
+- Note: The models are computationally intensive and may take several days to run.
+- To reproduce the figures in the manuscript without rerunning the models, use the processed files provided in [DRYAD](link).
 
 Precipitation (illustration credits to Diana Kleine) and temperature icons (illustration credits to Tracey Saxby) present in `parameters/CoarseEnv/PNG` were retrieved from [Integration and Application Network](https://ian.umces.edu/media-library/). 
 
@@ -36,11 +43,10 @@ All CSV files needed to run this code can be found in [DRYAD](link).
 
 ## Spatiotemporal extent and resolution 
 
-[*Describe the spatial and temporal extent and resolution of the data sets resulting from the workflow. For example:*]  
-- Spatial extent: [*81 NEON sites across North America*]
-- Spatial resolution: [*1 NEON site*]
-- Temporal extent: [*1950-2010*]
-- Temporal resolution: [*Monthly average temperature and precipitation*]
+- Spatial extent: Cedar Creek Ecosystem Science Reserve in Minnesota, US
+- Spatial resolution: two experiments (E001, E002) within the Reserve
+- Temporal extent: 1982-2004 (plant data), 1982-2023 (weather data)
+- Temporal resolution: yearly plant biomass data, monthly average temperature, and monthly maximum temperature data
 
 ## Usage
 
@@ -48,24 +54,79 @@ R version 4.5.1 and RStudio version 2025.05.0.
 
 ### File Naming Conventions
 
-- **Data Files**: [*Specify a clear naming convention for data files, such as `YYYY-MM-DD_sensorID_raw.csv`.*]
-- **Scripts**: [*Use descriptive names for scripts and follow a consistent naming convention, such as `process_data.py` or `cleaning_script.R`. If scripts are designed to be run in sequence, it may be helpful to number them in order (e.g., `1_cleaning_script.R`, `2_process_data.R`)*]
+- **Data Files**:  
+  - Files in `/L0` do not follow a naming convention.  
+  - Files in `/L1` are named using the format `DataModel_TREATMENT_CoarseEnv.RData` and are generated using the R scripts located in `/code/L1_dataWrangling_DataForModels`.  
+
+- **Scripts**:  
+  - Scripts are organized into descriptive folders and named consistently.  
+  - File names begin with either `L1_` or `L2_`, followed by `dataWrangling_DataForModels_CoarseEnv.Rmd` or `dataAnalysis_CDCRdata_Nutrient`.  
+  - The latter are then appended with the treatment (`Dist`, `NoDist`, `Minus5y`) and the model type (SAM: `CoarseEnv`, lm: `Slopes`).  
+  - All scripts are written as R Markdown (`.Rmd`) files.  
 
 ## Scripts
 
-[*Provide descriptions of the scripts in the `/L0` folder, including their purpose, inputs, and outputs. Specify whether scripts are standalone or designed to be run in sequence.*] 
+Scripts within the sub folders in `/code` are designed to be run in sequence, from `L1_*` to `L2_*` (these in alphabetical order). However, the script in `L2_Figures` is a stand alone one if needed (see details under **Instructions** in [Workflow](#Workflow)).
 
-### [*`preprocess_data.py`*]
+### [*`L1_dataWrangling_DataForModels_CoarseEnv.Rmd`*]
 
-- **Purpose**: [*Cleans and preprocesses raw Level 0 data.*]
-- **Inputs**: [*Raw data files in the `/data` folder (`YYYY-MM-DD_sensorID_raw.ext`).*]
-- **Outputs**: [*Processed data files in a new folder (`/processed_data`).*]
+- **Purpose**: Process data to be used in the models.
+- **Inputs**: Raw data files in `/data/L0` folder.
+- **Outputs**: Processed data files in `/data/L1/DataModel_CoarseEnv`.
 
-### [*`merge_datasets.R`*]
+### [*`L2_dataAnalysis_CDCRdata_Nutrient_Dist_CoarseEnv.Rmd`*]
 
-- **Purpose**: [*Merges multiple preprocessed datasets.*]
-- **Inputs**: [*Processed data files in the `/processed_data` folder.*]
-- **Outputs**: [*Merged dataset saved as `merged_data.csv` in the `/output` folder.*]
+- **Purpose**: Runs SAM model for Disturbed plots including all years of data.
+- **Inputs**: Processed data files in `/data/L1/DataModel_CoarseEnv`.
+- **Outputs**: Model assessment figures in `figures`; two CSV files with model parameters, and `.RData` file containing all the model input and output data, a pdf with the trace plots of selected parameters in `/parameters/CoarseEnv`.
+
+### [*`L2_dataAnalysis_CDCRdata_Nutrient_DistMinus5y_CoarseEnv.Rmd`*]
+
+- **Purpose**: Runs SAM model for Disturbed plots excluding the first 5 years of data.
+- **Inputs**: Processed data files in `/data/L1/DataModel_CoarseEnv`.
+- **Outputs**: Model assessment figures in `figures`; two CSV files with model parameters, and `.RData` file containing all the model input and output data, a pdf with the trace plots of selected parameters in `/parameters/CoarseEnv`.
+
+### [*`L2_dataAnalysis_CDCRdata_Nutrient_NoDist_CoarseEnv.Rmd`*]
+
+- **Purpose**: Runs SAM model for Intact plots including all years of data.
+- **Inputs**: Processed data files in `/data/L1/DataModel_CoarseEnv`.
+- **Outputs**: Model assessment figures in `figures`; two CSV files with model parameters, and `.RData` file containing all the model input and output data, a pdf with the trace plots of selected parameters in `/parameters/CoarseEnv`.
+
+### [*`L2_dataAnalysis_CDCRdata_Nutrient_NoDistMinus5y_CoarseEnv.Rmd`*]
+
+- **Purpose**: Runs SAM model for Intact plots excluding the first 5 years of data.
+- **Inputs**: Processed data files in `/data/L1/DataModel_CoarseEnv`.
+- **Outputs**: Model assessment figures in `figures`; two CSV files with model parameters, and `.RData` file containing all the model input and output data, a pdf with the trace plots of selected parameters in `/parameters/CoarseEnv`.
+
+### [*`L2_dataAnalysis_CDCRdata_Nutrient_DistAndNoDist_CoarseEnv_Slopes.Rmd`*]
+
+- **Purpose**: Runs a linear model to estimate the relationship between the strength of precipitation and maximum temperature effects as a function of nutrient addition levels, across treatments and including all years of data.
+- **Inputs**: SAM model outputs in `/parameters/CoarseEnv`.
+- **Outputs**: Model assessment figures in `figures`; a CSV file with model parameters, and `.RData` file containing all the model input and output data, a pdf with the trace plots of selected parameters in `/parameters/CoarseEnv_Slopes/abg`.
+
+### [*`L2_dataAnalysis_CDCRdata_Nutrient_DistAndNoDist_CoarseEnv_Slopes.Rmd`*]
+
+- **Purpose**: Runs a linear model to estimate the relationship between the strength of precipitation and maximum temperature effects as a function of nutrient addition levels, across treatments and excluding the first 5 years of data.
+- **Inputs**: SAM model outputs in `/parameters/CoarseEnv`.
+- **Outputs**: Model assessment figures in `figures`; a CSV file with model parameters, and `.RData` file containing all the model input and output data, a pdf with the trace plots of selected parameters in `/parameters/CoarseEnv_Slopes/abgMinus5y`.
+
+### [*`L2_dataAnalysis_CDCRdata_SuppTable.Rmd`*]
+
+- **Purpose**: Format model parameter estimates outputs in a format closer to the one used in the supplemental tables.
+- **Inputs**: SAM model outputs in `/parameters/CoarseEnv`.
+- **Outputs**: Excel files with model parameters a bit more ready to go to the supplement `/parameters/SuppTable`.
+
+### [*`L2_dataAnalysis_CDCRdata_Nutrient_AllDist_Calc_CoarseEnv.Rmd`*]
+
+- **Purpose**: Perform calculations on effects based on estimated model parameters to add to the results section.
+- **Inputs**: SAM model outputs in `/parameters/CoarseEnv` and `/parameters/CoarseEnv_Slopes`.
+- **Outputs**: Nothing is exported, all values are displayed in the Console when code is run.
+
+### [*`L2_dataAnalysis_CDCRdata_Nutrient_AllDist_Figures_AllCoarseEnv_LiveBiomassOnly.Rmd`*]
+
+- **Purpose**: Format model parameter estimates outputs in a format closer to the one used in the supplemental tables.
+- **Inputs**: Model parameters in `/parameters/CoarseEnv` and `/parameters/CoarseEnv_Slopes`, climate means from `/data/L1/DataModel_CoarseEnv/climateMeans`, and icons from `/parameters/CoarseEnv/PNG`.
+- **Outputs**: Figures included in the main manuscript exported to `/figures/final`.
 
 ## Data
 
