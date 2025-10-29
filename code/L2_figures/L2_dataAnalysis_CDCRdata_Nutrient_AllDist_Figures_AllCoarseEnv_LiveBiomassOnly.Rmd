@@ -141,9 +141,6 @@ General objects (graphs)
 ```{r}
 #colors
 colntrt<-pals::brewer.dark2(9)
-# colglobal<-as.character(pals::alphabet2(3))
-
-# colntrtseq<-c("#FEDBC7", "#FBC6AD", "#F8B193", "#F29B7B", "#E68166", "#DA6752", "#CE4C43", "#C03036", "#B31529")
 
 #trick to plot 9 before all other treatments
 order_levels <- c(9, 1, 2, 3, 4, 5, 6, 7, 8)
@@ -1164,7 +1161,7 @@ final_a <- ggdraw(a) +
   draw_label("b)", x = 0.053, y = 0.746, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
   draw_label("c)", x = 0.053, y = 0.506, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
   draw_label("d)", x = 0.053, y = 0.266, size = 15, fontface = "bold", hjust = 0, vjust = 1) +
-  draw_label("*", x = 0.466, y = 0.700, size = 22, fontface = "bold", hjust = 0, vjust = 1)
+  draw_label("†", x = 0.471, y = 0.700, size = 15, fontface = "bold", hjust = 0, vjust = 1, color = "#BC4399")
 final_a
 
 # saves
