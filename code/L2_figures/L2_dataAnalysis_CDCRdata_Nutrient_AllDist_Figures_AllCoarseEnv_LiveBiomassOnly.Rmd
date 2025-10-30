@@ -396,7 +396,8 @@ WEIGHTMomodelpar <- parameters_All %>%
          ntrtLong = factor(rep(c("0 + All", "1 + All", "2 + All", "3.4 + All", "5.4 + All", "9.5 + All", "17 + All", "27.2 + All", "0 + None"),times=288, each=1), levels = ntrtLong_levels),
          month = rep(1:36,times=8, each=9),
          variable = rep(1:2,times=4, each=324),
-         ntrt=factor(ntrt, levels = order_levels)) 
+         ntrt=factor(ntrt, levels = order_levels),
+         exp = ifelse(dur==1 & exp==2 & ntrt==4, 3, exp)) 
 
 WEIGHTMomodelpar1 <- WEIGHTMomodelpar %>% 
   filter(month %in% seq(2,36, by=3))
@@ -416,8 +417,8 @@ a<-
     geom_vline(xintercept = seq(3.5, 36, by = 3), color = "gray", linetype = "dashed") +
     geom_vline(xintercept = seq(12.5, 36, by = 12), color = "gray50") +
   geom_line(aes(linetype = as.factor(dur)), linewidth=1) +
-  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5]),
-                     labels = c("1" = "Intact", "2" = "Disturbed")
+  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5], "gray55"),
+                     labels = c("1" = "Intact", "2" = "Disturbed", "3" = "")
                      # guide = "none"
                      ) +  
   scale_linetype_manual(values = c("1" = "solid", "2" = "dotted"),
@@ -453,7 +454,8 @@ a<-
         plot.margin = margin(t = 5, r = 5, b = 5, l = 10),
         axis.title.y = element_text(size = 12, face = "bold"),
         axis.title.x = element_blank(),
-        axis.text.x = element_blank())
+        axis.text.x = element_blank()) +
+  guides(color = guide_legend(override.aes = list(color = c(pals::cols25(5)[4], pals::cols25(5)[5], NA))))
 
 final_a <- ggdraw(a) +
   # Rain cloud
@@ -473,8 +475,8 @@ b<-
     geom_vline(xintercept = seq(3.5, 36, by = 3), color = "gray", linetype = "dashed") +
     geom_vline(xintercept = seq(12.5, 36, by = 12), color = "gray50") +
   geom_line(aes(linetype = as.factor(dur)), linewidth=1) +
-  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5]),
-                     labels = c("1" = "Intact", "2" = "Disturbed")
+  scale_color_manual(values = c(pals::cols25(5)[4], pals::cols25(5)[5], "gray55"),
+                     labels = c("1" = "Intact", "2" = "Disturbed", "3" = "")
                      # guide = "none"
                      ) +  
   scale_linetype_manual(values = c("1" = "solid", "2" = "dotted"),
@@ -508,7 +510,8 @@ b<-
         legend.box.margin = margin(t=0, r=0, b=1, l=0), # Removes internal legend box margin
         legend.spacing.y = unit(0, "cm"),  # Adjusts vertical space between legend keys
         axis.title.y = element_text(size = 12, face = "bold"),
-        plot.margin = margin(t = 25, r = 5, b = 5, l = 10))
+        plot.margin = margin(t = 25, r = 5, b = 5, l = 10)) +
+  guides(color = guide_legend(override.aes = list(color = c(pals::cols25(5)[4], pals::cols25(5)[5], NA))))
 
 final_b <- ggdraw(b) +
   # Rain cloud
