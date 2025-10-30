@@ -131,7 +131,7 @@ Below is the specific folder location where the file downloaded from [DRYAD](lin
 
 ## Scripts
 
-Scripts within the sub folders in `/code` are designed to be run in sequence, from `L1_*` to `L2_*` (these in alphabetical order). However, the script in `L2_Figures` is a stand alone one if needed (see details under **Instructions** in [Workflow](#Workflow)).
+Scripts within the sub folders in `/code` are designed to be run in sequence, from `L1_*` to `L2_*` (these in alphabetical order). However, the script in `L2_Figures` is a stand alone one if needed (see details under **Instructions** in [Workflow](#Workflow)). All scripts can be found in [GitHub](https://github.com/Sullivan-Lab/project_ecolmemory.git).
 
 ### *`L1_dataWrangling_DataForModels_CoarseEnv.Rmd`*
 
