@@ -382,7 +382,7 @@ Merge plots
 full <- plot_grid(final_a, final_b, nrow=2, ncol = 1, rel_heights = c(0.95,1))
 full
 
-ggsave(file.path(graph.wd,"Fig2_EnvCoefVSNtrt.png"), plot = last_plot(), width=11, height=8, dpi = res_export, units="in")
+ggsave(file.path(graph.wd,"Fig3_EnvCoefVSNtrt.png"), plot = last_plot(), width=11, height=8, dpi = res_export, units="in")
 ```
 
 ###- [Main] Memory Temporal Patterns
@@ -524,7 +524,7 @@ final_b
 left_column <- plot_grid(final_a, final_b, ncol = 1, rel_heights = c(0.87,1))
 left_column
 
-ggsave(file.path(graph.wd,"Fig3_MemoryTempPattern_LiveBiomass.png"), plot = last_plot(), width=11, height=9, dpi = res_export, units="in")
+ggsave(file.path(graph.wd,"Fig4_MemoryTempPattern_LiveBiomass.png"), plot = last_plot(), width=11, height=9, dpi = res_export, units="in")
 ```
 
 ###- [Main] Memory length (cumulative weight)
@@ -685,7 +685,7 @@ Merge side-by-side plots - live biomass
 ```{r}
 left_column <- plot_grid(final_a, final_b, ncol = 2, rel_widths = c(0.90, 1))
 left_column
-ggsave(file.path(graph.wd,"Fig4_DiffMemoryLength_LiveBiomass.png"), plot = last_plot(), width=7, height=4, dpi = res_export, units="in")
+ggsave(file.path(graph.wd,"Fig2_DiffMemoryLength_LiveBiomass.png"), plot = last_plot(), width=7, height=4, dpi = res_export, units="in")
 ```
 
 ## Supplement
@@ -861,7 +861,7 @@ Merge side-by-side plots - live biomass
 ```{r}
 left_column <- plot_grid(final_a, final_b, ncol = 1)
 left_column
-ggsave(file.path(graph.wd,"FigSF_DiffMemoryLength_LiveBiomass.png"), plot = last_plot(), width=7, height=8, dpi = res_export, units="in")
+ggsave(file.path(graph.wd,"FigS4_DiffMemoryLength_LiveBiomass.png"), plot = last_plot(), width=7, height=8, dpi = res_export, units="in")
 ```
 
 #### 75%
@@ -1031,7 +1031,7 @@ Merge side-by-side plots - live biomass
 ```{r}
 left_column <- plot_grid(final_a, final_b, ncol = 1)
 left_column
-ggsave(file.path(graph.wd,"EXTRA_FigSF_DiffMemoryLength_75_LiveBiomass.png"), plot = last_plot(), width=7, height=8, dpi = res_export, units="in")
+ggsave(file.path(graph.wd,"EXTRA_FigS4_DiffMemoryLength_75_LiveBiomass.png"), plot = last_plot(), width=7, height=8, dpi = res_export, units="in")
 ```
 
 #### 90%
@@ -1201,7 +1201,7 @@ Merge side-by-side plots - live biomass
 ```{r}
 left_column <- plot_grid(final_a, final_b, ncol = 1)
 left_column
-ggsave(file.path(graph.wd,"EXTRA_FigSF_DiffMemoryLength_90_LiveBiomass.png"), plot = last_plot(), width=7, height=8, dpi = res_export, units="in")
+ggsave(file.path(graph.wd,"EXTRA_FigS4_DiffMemoryLength_90_LiveBiomass.png"), plot = last_plot(), width=7, height=8, dpi = res_export, units="in")
 ```
 
 
@@ -1343,7 +1343,7 @@ final_b
 left_column <- plot_grid(final_a, final_b, ncol = 1, rel_heights = c(0.87,1))
 left_column
 
-ggsave(file.path(graph.wd,"FigSV_MemoryTempPattern_LiveBiomass.png"), plot = last_plot(), width=11, height=9, dpi = res_export, units="in")
+ggsave(file.path(graph.wd,"FigS6_MemoryTempPattern_LiveBiomass.png"), plot = last_plot(), width=11, height=9, dpi = res_export, units="in")
 ```
 
 ###- [SI] Monthly weights
@@ -1472,7 +1472,7 @@ final_a <- ggdraw(a) +
 final_a
 
 # saves
-    ggsave(paste0(file.path(graph.wd),"/FigSX_MonthlyWeight_",summaryVar[Var,1],"_",summaryVar[Var,5],".png"), plot = last_plot(), width=15, height=8, dpi = res_export, units="in")
+    ggsave(paste0(file.path(graph.wd),"/FigS7-8_MonthlyWeight_",summaryVar[Var,1],"_",summaryVar[Var,5],".png"), plot = last_plot(), width=15, height=8, dpi = res_export, units="in")
     
 }
 ```
@@ -1891,6 +1891,6 @@ top_row <- plot_grid(final_a, final_b,
 
 top_row
 
-ggsave(file.path(graph.wd,"FigSW_StdGlobalCoefs.png"), plot = last_plot(), width=8, height=3, dpi = res_export, units="in")
+ggsave(file.path(graph.wd,"FigS5_StdGlobalCoefs.png"), plot = last_plot(), width=8, height=3, dpi = res_export, units="in")
 ```
 
